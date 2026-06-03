@@ -1,0 +1,261 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: var(--c-paper);
+  --color-paper-2: var(--c-paper-2);
+  --color-paper-edge: var(--c-paper-edge);
+  --color-ink: var(--c-ink);
+  --color-ink-soft: var(--c-ink-soft);
+  --color-ink-faint: var(--c-ink-faint);
+  --color-accent: var(--c-accent);
+  --color-gold: var(--c-gold);
+  --color-rule: var(--c-rule);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-deva: var(--font-deva);
+  --font-mono: var(--font-mono);
+}
+
+/* —— THEME · Ivory & Oxblood ——
+   Warm near-black ink on ivory, a single restrained oxblood accent.
+   No background glows, no green. Editorial, quiet, expensive. */
+:root,
+.theme-forest {
+  --c-paper: #f4efe3;
+  --c-paper-2: #ece4d3;
+  --c-paper-edge: #d8ccb4;
+  --c-ink: #1f1d1a;
+  --c-ink-soft: #5f594e;
+  --c-ink-faint: #968c7c;
+  --c-accent: #a4382a;
+  --c-gold: #b08a4a;
+  --c-rule: rgba(31, 29, 26, 0.13);
+
+  --c-bg-glow-1: transparent;
+  --c-bg-glow-2: transparent;
+}
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body), "Iowan Old Style", Georgia, serif;
+  font-size: 20px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Theme-aware page surface.
+   NOTE: no `background-attachment: fixed` — fixed backgrounds force a full-page
+   repaint on every scroll frame, which fights the Lenis smooth-scroll RAF loop and
+   makes lower-power laptops lag hard. Gradients scroll with the page (cheap). */
+.surface {
+  min-height: 100vh;
+  background-color: var(--c-paper);
+  color: var(--c-ink);
+  background-image:
+    radial-gradient(1200px 700px at 80% -10%, var(--c-bg-glow-1), transparent 60%),
+    radial-gradient(900px 600px at -10% 30%, var(--c-bg-glow-2), transparent 60%);
+  background-attachment: scroll, scroll;
+}
+
+/* paper grain as a single static, GPU-friendly overlay instead of a fixed,
+   scroll-repainting layer. Pointer-events none so it never blocks clicks. */
+.surface::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.10  0 0 0 0 0.06  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+.surface > * { position: relative; z-index: 1; }
+
+::selection { background: color-mix(in srgb, var(--c-ink) 18%, transparent); color: var(--c-ink); }
+
+/* lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* paper sheet */
+.paper-sheet {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--c-paper) 88%, white) 0%,
+      color-mix(in srgb, var(--c-paper) 100%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--c-paper-edge) 90%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.6),
+    0 1px 0 rgba(0,0,0,.04),
+    0 22px 50px -28px rgba(0,0,0,.45),
+    0 6px 16px -6px rgba(0,0,0,.18);
+}
+
+/* "scroll" — paper with curled top/bottom hint */
+.scroll-paper {
+  position: relative;
+  border-radius: 4px;
+}
+.scroll-paper::before,
+.scroll-paper::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 14px;
+  pointer-events: none;
+}
+.scroll-paper::before {
+  top: -1px;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--c-paper-edge) 50%, transparent),
+      transparent);
+  border-top-left-radius: 4px; border-top-right-radius: 4px;
+}
+.scroll-paper::after {
+  bottom: -1px;
+  background:
+    linear-gradient(0deg,
+      color-mix(in srgb, var(--c-paper-edge) 50%, transparent),
+      transparent);
+  border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;
+}
+/* rolled edge bars */
+.scroll-paper .rolled {
+  position: absolute;
+  left: -22px; right: -22px;
+  height: 18px;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--c-paper-edge) 70%, var(--c-ink)) 0%,
+      color-mix(in srgb, var(--c-paper-edge) 95%, transparent) 50%,
+      color-mix(in srgb, var(--c-paper-edge) 70%, var(--c-ink)) 100%);
+  border-radius: 9px;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.25);
+}
+.scroll-paper .rolled.top { top: -10px; }
+.scroll-paper .rolled.bottom { bottom: -10px; }
+
+/* subtle ruled lines for the inside of the scroll */
+.ruled-soft {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 48px,
+    color-mix(in srgb, var(--c-ink) 7%, transparent) 48px,
+    color-mix(in srgb, var(--c-ink) 7%, transparent) 49px
+  );
+}
+
+[contenteditable="true"]:focus {
+  outline: none;
+  background: color-mix(in srgb, var(--c-accent) 8%, transparent);
+  border-radius: 2px;
+}
+
+/* poem cards: warm-tinted elevation that deepens on hover */
+.poem-card {
+  transition: box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.poem-card:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 0 rgba(0, 0, 0, 0.04),
+    0 40px 80px -36px color-mix(in srgb, var(--c-accent) 40%, rgba(0, 0, 0, 0.5)),
+    0 14px 30px -14px rgba(0, 0, 0, 0.22);
+}
+
+/* thumbnail strip */
+.scan-thumb {
+  background: var(--c-paper-2);
+  border: 1px solid var(--c-paper-edge);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.6),
+    0 6px 14px -8px rgba(0,0,0,.4);
+}
+
+/* hero drop cap */
+.drop-cap::first-letter {
+  font-family: var(--font-deva), serif;
+  font-size: 3.4em;
+  float: left;
+  line-height: .85;
+  padding: .08em .14em 0 0;
+  color: var(--c-accent);
+}
+
+/* small caps mono */
+.eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12.5px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+/* Devanagari-safe small label. Never apply .eyebrow (uppercase + tracking + mono)
+   to Devanagari: it breaks matras and conjuncts. Use this instead. */
+.label-deva {
+  font-family: var(--font-deva), serif;
+  font-size: 16px;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+/* —— Live aurora background ——
+   Slow-drifting warm light. Animates ONLY transform (translate) on a fixed,
+   pre-rasterized blurred layer, so it stays GPU-cheap even on low-power laptops.
+   Collapses to static under prefers-reduced-motion. */
+.live-bg .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.live-bg .blob-1 {
+  width: 48vw; height: 48vw; left: -8vw; top: -12vw;
+  background: radial-gradient(circle at 50% 50%, var(--c-gold), transparent 66%);
+  animation: drift-1 42s ease-in-out infinite;
+}
+.live-bg .blob-2 {
+  width: 42vw; height: 42vw; right: -10vw; top: 16vh;
+  background: radial-gradient(circle at 50% 50%, var(--c-accent), transparent 68%);
+  opacity: 0.3;
+  animation: drift-2 52s ease-in-out infinite;
+}
+.live-bg .blob-3 {
+  width: 54vw; height: 54vw; left: 18vw; bottom: -24vw;
+  background: radial-gradient(circle at 50% 50%, #cf8c54, transparent 68%);
+  opacity: 0.42;
+  animation: drift-3 60s ease-in-out infinite;
+}
+@keyframes drift-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(6vw, 8vh, 0) scale(1.08); }
+}
+@keyframes drift-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50%      { transform: translate3d(-7vw, 5vh, 0) scale(1); }
+}
+@keyframes drift-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-5vw, -7vh, 0) scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-bg .blob { animation: none; }
+}
+
+/* large display ligatures / kerning for headline type */
+.display-tight {
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  letter-spacing: -0.015em;
+}
