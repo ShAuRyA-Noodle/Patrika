@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# पत्रिका · Patrika
 
-## Getting Started
+A bilingual (Hindi and English) poetry journal for the poet **Neelu Shori** (नीलू शोरी).
 
-First, run the development server:
+Patrika is a quiet, editorial reading experience built around three poems on silence, suffering, and the floods a woman is never allowed to spill. Devanagari verse is set in a dedicated serif, with romanized titles and brief English glosses so the work reads across both languages.
+
+## Highlights
+
+- **Editorial typography.** Fraunces and Cormorant Garamond for Latin, Tiro Devanagari Hindi for the verse, JetBrains Mono for labels.
+- **Ivory and oxblood theme.** Warm near-black ink on ivory paper with a single restrained accent. Quiet by design.
+- **Motion that respects the reader.** Smooth scrolling via Lenis and tasteful reveals via Framer Motion, all gated behind `prefers-reduced-motion`.
+- **Fully static.** Every route is prerendered at build time. No backend, no API routes, no user input.
+
+## Tech stack
+
+- [Next.js 16](https://nextjs.org) (App Router, Turbopack)
+- [React 18](https://react.dev)
+- [Tailwind CSS 4](https://tailwindcss.com)
+- [Framer Motion](https://www.framer.com/motion/) for animation
+- [Lenis](https://github.com/darkroomengineering/lenis) for smooth scroll
+- TypeScript
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the journal.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Build the production bundle |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Lint the project with ESLint |
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/          Layout, fonts, global styles, the single page
+  components/   Hero, Archive, PoemCard, PoemScroll, and motion helpers
+  lib/poems.ts  The poems and their metadata
+public/poems/   Manuscript scans of the original handwritten verse
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Adding or editing poems
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All content lives in [`src/lib/poems.ts`](src/lib/poems.ts) as a typed `POEMS` array. Each entry carries a Devanagari title, a romanized subtitle, the author signature, a date, a short card blurb, and the stanzas themselves. Lines are auto detected as Devanagari or Latin and styled accordingly.
 
-## Deploy on Vercel
+## Credits
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Poems by Neelu Shori (नीलू शोरी). Design and build for the Patrika journal.
