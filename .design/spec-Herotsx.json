@@ -1,0 +1,70 @@
+{
+  "component": "Hero.tsx",
+  "goal": "ACT I, SURFACE / THE COVER. The breath-held opening. After the loader scores the masthead rule, the giant Devanagari headline SURFACES word-by-word out of wet paper (gold word last), the italic English line fades up once the Hindi settles, the bua.png figure breathes on the house rhythm, and a faint dark waterline rests low. Then near-stillness, one sustained inhale. All framer reveal/parallax/breath logic is replaced by shared GSAP primitives so the site shares ONE arrival ease, ONE breath, ONE scroll RAF.",
+  "choreography": [
+    {
+      "moment": "Masthead rule scores itself left to right on loader handoff, then wordmark surfaces",
+      "elements": "header bottom hairline as .masthead-rule span; patrika wordmark plus tagline; side labels",
+      "animation": "rule scaleX 0 to 1 transformOrigin left dur 0.7; wordmark/tagline/labels opacity 0 to 1 y 12 to 0 stagger 0.08; no blur on chrome",
+      "ease": "breath ease mirroring cubic-bezier(0.16,1,0.3,1)",
+      "timingOrScrub": "timed on load, tail of MotionProvider loaderIntro, gated on document.fonts.ready with 600ms fallback, hands into the headline",
+      "tech": "GSAP timeline in useGSAP scoped to heroRef; no framer; transformOrigin transform opacity only"
+    },
+    {
+      "moment": "The Surfacing Headline signature, each WORD condenses out of wet paper, gold word last",
+      "elements": "h1 Devanagari ~132px split into WORDS; gold word marked data-gold",
+      "animation": "per word from y 24 blur 8 opacity 0 dur 1.0 stagger 0.11; gold word LAST plus 0.25s delay duration x1.3 scale 1.015 to 1 and gold-pool wash to ~0.18",
+      "ease": "breath; gold word same ease longer duration",
+      "timingOrScrub": "timed on load right after masthead, trigger load not scroll",
+      "tech": "useDevanagariReveal(headlineRef split words stagger 0.11 goldLast true trigger load); SplitText forced type words for matra safety, guard throws on chars; keep br, no split lines; transform opacity filter-blur-to-0 only"
+    },
+    {
+      "moment": "English translator line fades up after Hindi settles",
+      "elements": "italic English paragraph beneath headline",
+      "animation": "opacity 0 to 1 y 16 to 0 dur 0.9 single unit no split",
+      "ease": "breath",
+      "timingOrScrub": "timed on load, sequenced last in arrival timeline",
+      "tech": "same useGSAP timeline, gsap.from on englishRef after headline completes; transform opacity only"
+    },
+    {
+      "moment": "bua.png figure breathes perpetually, alive not animated",
+      "elements": "figure wrapper div holding the Image",
+      "animation": "y 0 to -6 scale 1 to 1.015 opacity +/-0.04 period 8s yoyo infinite; one shared house breath",
+      "ease": "sine.inOut per useBreath",
+      "timingOrScrub": "timed loop after arrival, runs while in viewport",
+      "tech": "useBreath(figureRef period8 y-6 scale1.015 opacity0.04); gsap.to yoyo repeat -1; transform opacity only; keep mix-blend-multiply; drop framer keyframes"
+    },
+    {
+      "moment": "Opposing scrub parallax headline vs figure, plus figure sinking into rising waterline",
+      "elements": "headline column wrapper, figure rail, figure lower-edge gradient overlay",
+      "animation": "headline translateY 0 to -90 and opacity 1 to 0 by scroll ~0.85; figure translateY 0 to +70; figure bottom-fade opacity driven by --waterline-progress, opacity only",
+      "ease": "none linear scrub",
+      "timingOrScrub": "scrub via ScrollTrigger on hero through the shared gsap.ticker and Lenis RAF; reads --waterline-progress set by Waterline",
+      "tech": "useScrubParallax(headlineRef 0 to -90), useScrubParallax(figureRef 0 to +70); CSS calc or quickSetter on overlay opacity from var; remove framer useScroll/useTransform; Hero reads not owns waterline; opacity only on figure"
+    }
+  ],
+  "interactions": [
+    {
+      "on": "hover over the bua.png figure, pointer fine only",
+      "effect": "retain the restrained 1200ms scale-to-1.04 ink-swell on the Image atop the perpetual breath, barely-there lean-in, monochrome; mark figure data-ink for the InkCursor pool",
+      "tech": "pure CSS transition on transform via group-hover scale plus cubic-bezier(0.16,1,0.3,1); GSAP useBreath animates the WRAPPER, CSS hover the inner Image, distinct elements so they never fight; no framer"
+    },
+    {
+      "on": "pointer over masthead labels, wordmark, or figure, pointer fine and non-reduced-motion",
+      "effect": "mark data-ink so the global InkCursor ink-dot eases to opacity 1 and a faint ink-pool grows; native cursor never hidden",
+      "tech": "InkCursor primitive global via gsap.quickTo; Hero only adds data-ink; off on touch and reduced-motion"
+    }
+  ],
+  "domOrMarkupChanges": "Convert to GSAP-driven use client component using useGSAP from @gsap/react scoped to heroRef; refs heroRef(section), headlineRef(h1), englishRef(English p), figureRef(figure wrapper). REMOVE framer-motion imports (motion, useScroll, useTransform, useReducedMotion), the reveal variants object, the motion.div y/opacity wrapper, the figure framer keyframes, and titleY/figureY/fade. REPLACE the header border-b with a child span.masthead-rule (absolute inset-x-0 bottom-0 h-px bg ink transformOrigin left). WRAP the gold word as span.held-tear data-gold keeping gold color plus the gold-pool after hook. KEEP the br in the h1. Keep all bilingual text, standfirst p, figcaption rule and silence eyebrow, label-deva labels, display-tight Latin, mix-blend-multiply and grayscale on the Image, and the lower-edge gradient now opacity-coupled to --waterline-progress. Add data-ink to figure and interactive masthead bits. Devanagari keeps letter-spacing 0, never eyebrow or mono.",
+  "usesPrimitives": [
+    "MotionProvider + motion.ts (breath/sediment CustomEase, single Lenis+ticker RAF, useMotion)",
+    "useDevanagariReveal (headline word-surface, goldLast, trigger load, words-only guard)",
+    "useBreath (bua figure 8s breath)",
+    "useScrubParallax (headline 0 to -90, figure 0 to +70)",
+    "Waterline / useScrollWaterline (Hero reads --waterline-progress to sink figure)",
+    "InkCursor (Hero supplies data-ink targets only)",
+    "css .masthead-rule, .held-tear, .gold-pool; existing .display-tight/.label-deva/.eyebrow/.drop-cap untouched"
+  ],
+  "perfNotes": "Animate ONLY transform, opacity, filter-blur resolving to 0. Never layout/width/top/height. SplitText type words on the Devanagari h1, revert() in useGSAP cleanup (Next fast-refresh + DOM restore). will-change:filter just-in-time on surfacing words cleared onComplete; will-change:transform on parallax/breath cleared off-screen. All scroll work via the single shared gsap.ticker + Lenis RAF; no framer useScroll, no second RAF. GSAP owns surfacing/breath/parallax/rule; framer owns nothing here. bua.png keeps priority+sizes for LCP; mix-blend-multiply static. gold-pool and figure dissolve opacity-only pre-rendered gradients, no live blur of large nodes. Static SVG paper-grain pseudo-element untouched.",
+  "reducedMotion": "Gate via gsap.matchMedia for prefers-reduced-motion in the same useGSAP scope, true parity. Masthead rule/wordmark/labels: one 0.4s opacity fade, no scaleX or y. Headline: one 0.4s opacity fade on the whole h1, no SplitText/blur/y/stagger; gold word static, no scale or pool. English line: 0.4s opacity fade, no y. useBreath paused, will-change removed (CSS hover may remain). useScrubParallax from=to=0, static. Figure does not sink, waterline reads a static low value. InkCursor disabled, native cursor only. All content pre-revealed and legible."
+}

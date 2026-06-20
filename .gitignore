@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude-mem local context (not part of the repo)
+CLAUDE.local.md
+
+# stray duplicate of public/bua.png
+/Bua.png

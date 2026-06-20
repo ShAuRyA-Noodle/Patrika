@@ -1,0 +1,73 @@
+{
+  "component": "ArchiveSection (the #archive section: संग्रह heading + 3-col PoemCard grid + footer) inside Archive.tsx, plus the per-card motion living in PoemCard.tsx",
+  "goal": "ACT III \"THE INDEX\" — breath returned to the reader. After the held constriction of the PullQuote, संग्रह opens into cool, even stillness: a section heading whose margin-rule scores itself first, then three poems presented as manuscript folios (№ 001-003) that surface up from below on the house ease and then settle into a perpetual, near-subliminal breath — three living presences, not three buttons. The footer closes the page by drawing its top rule before its bilingual colophon surfaces, with the poet's name as the block's single rationed gold word. The rising Waterline has by now tinted the lower page a cooler gray, so the grid sits just above water that never reaches it. Nothing here performs; the section reads as an ordered, breathing manuscript index — quiet, devastating, expensive.",
+  "choreography": [
+    {
+      "moment": "संग्रह heading rule scores itself, then the word surfaces (entering #archive on first scroll into view)",
+      "elements": "A new full-width hairline rule placed directly under/above the h2 'संग्रह' (a 1px var(--c-rule) line, the 'surface level' horizon device); the Devanagari h2 word itself",
+      "animation": "Rule: scaleX 0 -> 1, transformOrigin left (margin being ruled), 0.7s. Word 'संग्रह': single Devanagari WORD-level surface — y +24px -> 0, filter blur(8px) -> 0, opacity 0 -> 1; one gold-pool flicker is NOT used here (gold is rationed to the footer name for this block). Word begins +0.12s after the rule starts.",
+      "ease": "breath CustomEase ('M0,0 C0.16,1 0.3,1 1,1', mirrors cubic-bezier(0.16,1,0.3,1)) for both",
+      "timingOrScrub": "TIMED, fired once on scroll-into-view. ScrollTrigger start:'top 85%', once:true. Not scrubbed (a scrubbed heading would feel mechanical; this is a one-shot arrival).",
+      "tech": "GSAP via useDevanagariReveal(headingRef,{split:'words',trigger:'scroll'}) for the word (single word, so effectively a one-unit surface, matra-safe). The rule is a sibling tweened in the same useGSAP scope with gsap.fromTo scaleX. Both share one ScrollTrigger so they stay in lockstep on the shared Lenis+gsap.ticker RAF. Replaces nothing existing (heading currently has no animation)."
+    },
+    {
+      "moment": "Three PoemCards surface in sequence as the grid scrolls into view",
+      "elements": "The three motion.button .poem-card elements (the whole card: plate + body)",
+      "animation": "Per card: y +22px -> 0, filter blur(6px) -> 0, opacity 0 -> 1. Stagger 0.11s between cards (each=0.11) so they surface left-to-right like folios being laid out. Replaces the current framer initial{opacity:0,y:44}/whileInView with a quieter, blur-led surface on the house ease (y reduced 44->22, gains blur, loses the spring).",
+      "ease": "breath CustomEase",
+      "timingOrScrub": "TIMED, once. GSAP ScrollTrigger BATCH on the grid container, start:'top 85%', once:true. Batched so all three share one trigger (no three separate observers).",
+      "tech": "GSAP via useStaggerReveal(gridRef,{each:0.11,start:'top 85%',y:22,blur:6,scroller:'window'}) — the ScrollTrigger.batch path (main document, NOT the overlay). This replaces PoemCard's own whileInView entry animation, so PoemCard no longer self-animates its entrance; the parent grid owns the stagger. PoemCard keeps only whileHover + perpetual breath."
+    },
+    {
+      "moment": "Folios breathe perpetually once settled (idle state, after entrance completes)",
+      "elements": "Each .poem-card's inner plate/content wrapper (apply breath to the card root transform; hover lift composes on a child or via a separate transform channel)",
+      "animation": "mode 'breath': y 0 -> -6px, scale 1 -> 1.015, opacity +0.04, yoyo, repeat:-1, period 8s — but each card offset in phase (stagger the loop start by ~1.2s per card via delay) so the three do not pulse in unison (three independent breaths, like three people in a room, not a heartbeat). Amplitude capped <=6px / 0.04 opacity per the breath discipline.",
+      "ease": "sine.inOut (perpetual breath uses sine, NOT the breath CustomEase which is a one-shot arrival ease)",
+      "timingOrScrub": "TIMED perpetual loop; starts onComplete of that card's entrance surface (so cards do not breathe while still surfacing). Pauses via ScrollTrigger when the card scrolls fully out of view to save cycles.",
+      "tech": "GSAP via useBreath(cardRef,{period:8,y:-6,scale:1.015,opacity:0.04,mode:'breath'}) per card, with a per-index phase delay. Transform+opacity only. To avoid GSAP/CSS fighting on transform, the existing CSS group-hover scale on the inner Devanagari plate (.group-hover:scale-[1.04]) stays as a CSS transition on a DIFFERENT element (the plate text), while breath owns the card-root transform; framer whileHover y:-10 is REMOVED in favor of letting breath + a GSAP hover handle the lift so two libs never animate the card root's transform. See interactions."
+    },
+    {
+      "moment": "Footer top rule draws, then colophon surfaces (gold poet name last)",
+      "elements": "The footer's border-t (promoted from a CSS border to an animatable 1px rule element), the 'पत्रिका' wordmark (Devanagari), the italic 'कविताएँ ... 2026' line with 'नीलू शोरी' as the gold word",
+      "animation": "Rule: scaleX 0 -> 1, transformOrigin left, 0.7s. Then 'पत्रिका' surfaces (Devanagari word: y+18 -> 0, blur 6 -> 0, opacity), then the italic English line fades up (y+14 -> 0, opacity) +0.15s after. The gold word 'नीलू शोरी' clarifies LAST and a half-beat slower (duration x1.3, +0.2s) with a one-shot scale 0.985 -> 1 and a faint .gold-pool ::after wash easing opacity 0 -> 1 then resting — this is THIS block's single rationed gold event.",
+      "ease": "breath CustomEase for all; the gold word uses breath with the extended duration",
+      "timingOrScrub": "TIMED, once. ScrollTrigger start:'top 90%', once:true.",
+      "tech": "GSAP. Rule tween + useDevanagariReveal on 'पत्रिका' (word) + a plain gsap.from on the Latin italic line (Latin MAY char/word-split but we keep it word/line-level — a single fade-up here). Gold name handled by the goldLast branch / a [data-gold] hook with the .gold-pool css utility. Devanagari letter-spacing stays 0; never apply .eyebrow to 'पत्रिका'."
+    }
+  ],
+  "interactions": [
+    {
+      "on": "Hover over a PoemCard (pointer:fine only)",
+      "effect": "Card lifts an additional y:-10 with a soft settle; the inner Devanagari/image plate scales 1.04 (existing CSS transition retained); .poem-card box-shadow deepens (existing CSS transition retained). The lift COMPOSES with the perpetual breath rather than replacing it — the card keeps breathing while lifted. The 'पढ़िए →' arrow nudges translate-x 1.5 (existing CSS).",
+      "tech": "GSAP for the lift on the card-root transform so it shares the transform channel with useBreath (one library owns card-root transform): on mouseenter gsap.to(card,{y:'-=10' relative or a separate yLift via a CSS var the breath adds to}) — cleanest is to apply breath to the card ROOT and the hover lift to an inner WRAPPER element, so GSAP-breath(root) and GSAP-hover(wrapper) never touch the same node. framer whileHover y:-10 is REMOVED to honor 'GSAP and framer never animate the same property on the same element'. Box-shadow + plate scale + arrow nudge remain pure CSS transitions (.poem-card hover, group-hover). data-ink attribute added to each card so the InkCursor ink-pool manifests over it."
+    },
+    {
+      "on": "Click / keyboard-activate a PoemCard",
+      "effect": "Triggers the FolioTransition (useFolioUnfurl) open ritual managed by Archive's overlay — the card's bounding rect (originRect) seeds the unfurl origin via Flip. This component's only job is to pass the clicked card's rect/id up (onOpen) and apply a brief press feedback (scale 0.99) on pointerdown.",
+      "tech": "Existing onOpen callback retained; capture e.currentTarget.getBoundingClientRect() to hand originRect to useFolioUnfurl. Press feedback via GSAP quickTo scale on pointerdown/up (transform only). Focus ring (.focus-visible:ring) retained for keyboard."
+    },
+    {
+      "on": "Scroll position reaching the संग्रह grid",
+      "effect": "No section-local interaction beyond reveals, BUT the global Waterline has risen to ~translateY(28%) by this section (per the master waterline mapping hero 72% -> grid 28%), tinting the lower viewport cooler. The grid sits ABOVE the waterline crest — water visibly present beneath the folios but never reaching the cards (the clamp guarantees it stops short of text).",
+      "tech": "Read-only consumer of the global --waterline-progress var driven by Waterline.tsx's module ScrollTrigger. This section adds no waterline logic; it simply renders above z-0. No per-frame work here."
+    },
+    {
+      "on": "Card scrolls fully out of viewport",
+      "effect": "That card's perpetual breath loop pauses and its will-change:transform is cleared, to keep idle GPU cost at zero when off-screen.",
+      "tech": "ScrollTrigger onEnter/onLeave (or onToggle) per card pausing/resuming the useBreath timeline; will-change set just-in-time on play, removed on pause."
+    }
+  ],
+  "domOrMarkupChanges": "In Archive.tsx #archive section and footer: (1) Add a refs scope wrapper around the section for useGSAP. (2) Add an explicit hairline rule element beneath the h2 (a <div className=\\\"surface-rule\\\" /> — 1px var(--c-rule), transformOrigin left) so the rule can scaleX-animate (CSS borders cannot be transformed cleanly); attach headingRef to the h2. (3) Wrap the h2 text in useDevanagariReveal scope. (4) Add a folio number label above/beside each card: a JetBrains-Mono .folio-num span ('№ 001' from poem.number) — apply .eyebrow/.folio-num to the LATIN/numeric № only, NEVER to the Devanagari cardTitle. (5) Grid container gets gridRef for useStaggerReveal batch. (6) Footer: promote border-t to an animatable <div className=\\\"surface-rule\\\" /> element (remove border-t utility, add the rule div); wrap 'पत्रिका' and the italic line for staggered reveal; mark 'नीलू शोरी' with data-gold and the .gold-pool wrapper. In PoemCard.tsx: (a) Remove framer initial/whileInView entrance (parent grid now owns stagger) and remove whileHover y:-10 (moved to GSAP). (b) Add cardRef (root, for breath) and an inner content wrapper element (for the GSAP hover lift) so root-transform and lift-transform live on separate nodes. (c) Add data-ink attribute for InkCursor. (d) Add the .folio-num № label markup. (e) Keep existing CSS group-hover plate scale, box-shadow transition, arrow nudge, focus-visible ring. New CSS util .surface-rule (1px high, background var(--c-rule), transformOrigin left, will-change transform) and .folio-num (per globalMotionSystem css utilities) added to globals.css.",
+  "usesPrimitives": [
+    "useDevanagariReveal",
+    "useStaggerReveal (scroller:'window', ScrollTrigger.batch path)",
+    "useBreath (mode:'breath', per-card phase offset)",
+    "useFolioUnfurl (consumed via onOpen + originRect handoff)",
+    "Waterline / useScrollWaterline (read-only consumer of --waterline-progress)",
+    "InkCursor (via data-ink on cards/links)",
+    "MotionProvider (breath CustomEase, gsap.ticker single-RAF, useMotion() reduce/fine state)",
+    "css utilities (.folio-num, .gold-pool, .surface-rule, existing .poem-card / .drop-cap / .label-deva)"
+  ],
+  "perfNotes": "Animate ONLY transform (y, scaleX, scale), opacity, and filter:blur (always resolving to 0 and confined to small text runs — the heading word, footer wordmark, card surfaces; never a live blur on the full card or grid). NEVER animate layout: the surface rules use scaleX + transformOrigin:left (NOT width); cards use translate/scale (NOT top/margin); folio reveal owned by Archive uses scaleY elsewhere, not here. will-change:transform set just-in-time by GSAP at the start of each reveal/breath and cleared onComplete or when the card scrolls out of view (off-screen breath loops are paused — zero idle GPU). All ScrollTriggers (heading, grid batch, footer, per-card breath toggles) ride the SINGLE shared Lenis -> gsap.ticker RAF from MotionProvider; no component starts its own requestAnimationFrame. Use ScrollTrigger.batch for the three cards (one observer, not three). Mandatory useGSAP/gsap.context scoped cleanup: SplitText.revert() for the heading/footer Devanagari, kill ScrollTriggers and breath timelines on unmount and across Next fast-refresh. GSAP owns all transforms/opacity here; framer owns only the global progress hairline + the overlay backdrop (distinct elements) so the two libraries never animate the same property on the same node — the card-root breath (GSAP) and any hover lift (GSAP on a separate inner node) are deliberately split across two DOM nodes to uphold this. Gold is rationed to the single footer name (one .gold-pool event for the whole block).",
+  "reducedMotion": "Branch everything through gsap.matchMedia() / useMotion().reduce for true parity (not slowed): (1) Heading + footer rules appear via a single 0.4s opacity fade — no scaleX draw, pre-sized. (2) संग्रह word, footer 'पत्रिका' and italic line: single 0.4s opacity fade, no SplitText, no blur, no y; content pre-revealed and fully legible. (3) PoemCards: NO surfacing stagger and NO perpetual breath — cards are static and fully visible on load; the hover lift + box-shadow deepen are RETAINED (a discrete user-initiated transition, acceptable under reduced-motion) but the perpetual breath loop is fully paused with will-change removed. (4) Gold footer name: static gold (var(--c-gold)), no scale, no gold-pool fade-in (rendered at rest opacity). (5) Waterline reads as static low position (handled globally) so the cooler tint is still present without scrub or quiver. (6) InkCursor disabled (native cursor only) on reduced-motion and on touch / non-pointer:fine. No animation here loops or auto-plays under reduced-motion; only direct hover/focus feedback remains."
+}

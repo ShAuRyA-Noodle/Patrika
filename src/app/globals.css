@@ -17,20 +17,20 @@
   --font-mono: var(--font-mono);
 }
 
-/* —— THEME · Ivory & Oxblood ——
-   Warm near-black ink on ivory, a single restrained oxblood accent.
-   No background glows, no green. Editorial, quiet, expensive. */
+/* —— THEME · Monochrome ——
+   Near-black ink on off-white paper, a single restrained pure-black accent.
+   No background glows, no warm tints. Editorial, quiet, grayscale. */
 :root,
 .theme-forest {
-  --c-paper: #f4efe3;
-  --c-paper-2: #ece4d3;
-  --c-paper-edge: #d8ccb4;
-  --c-ink: #1f1d1a;
-  --c-ink-soft: #5f594e;
-  --c-ink-faint: #968c7c;
-  --c-accent: #a4382a;
-  --c-gold: #b08a4a;
-  --c-rule: rgba(31, 29, 26, 0.13);
+  --c-paper: #f5f5f4;
+  --c-paper-2: #eaeaea;
+  --c-paper-edge: #d4d4d4;
+  --c-ink: #161616;
+  --c-ink-soft: #565656;
+  --c-ink-faint: #8c8c8c;
+  --c-accent: #000000;
+  --c-gold: #6f6f6f;
+  --c-rule: rgba(22, 22, 22, 0.13);
 
   --c-bg-glow-1: transparent;
   --c-bg-glow-2: transparent;
@@ -71,7 +71,7 @@ body {
   pointer-events: none;
   opacity: 0.3;
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.10  0 0 0 0 0.06  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 .surface > * { position: relative; z-index: 1; }
 
@@ -162,7 +162,7 @@ html.lenis, html.lenis body { height: auto; }
   border-radius: 2px;
 }
 
-/* poem cards: warm-tinted elevation that deepens on hover */
+/* poem cards: neutral elevation that deepens on hover */
 .poem-card {
   transition: box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -211,7 +211,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* —— Live aurora background ——
-   Slow-drifting warm light. Animates ONLY transform (translate) on a fixed,
+   Slow-drifting neutral-gray light. Animates ONLY transform (translate) on a fixed,
    pre-rasterized blurred layer, so it stays GPU-cheap even on low-power laptops.
    Collapses to static under prefers-reduced-motion. */
 .live-bg .blob {
@@ -229,26 +229,28 @@ html.lenis, html.lenis body { height: auto; }
 .live-bg .blob-2 {
   width: 42vw; height: 42vw; right: -10vw; top: 16vh;
   background: radial-gradient(circle at 50% 50%, var(--c-accent), transparent 68%);
-  opacity: 0.3;
+  opacity: 0.1;
   animation: drift-2 52s ease-in-out infinite;
 }
 .live-bg .blob-3 {
   width: 54vw; height: 54vw; left: 18vw; bottom: -24vw;
-  background: radial-gradient(circle at 50% 50%, #cf8c54, transparent 68%);
-  opacity: 0.42;
+  background: radial-gradient(circle at 50% 50%, #9a9a9a, transparent 68%);
+  opacity: 0.32;
   animation: drift-3 60s ease-in-out infinite;
 }
+/* translate ONLY — scaling a 64px-blurred half-viewport layer forces a per-frame
+   re-raster; translate lets the blurred bitmap be cached and merely composited */
 @keyframes drift-1 {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(6vw, 8vh, 0) scale(1.08); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(6vw, 8vh, 0); }
 }
 @keyframes drift-2 {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
-  50%      { transform: translate3d(-7vw, 5vh, 0) scale(1); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(-7vw, 5vh, 0); }
 }
 @keyframes drift-3 {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(-5vw, -7vh, 0) scale(1.12); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(-5vw, -7vh, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .live-bg .blob { animation: none; }
@@ -258,4 +260,116 @@ html.lenis, html.lenis body { height: auto; }
 .display-tight {
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   letter-spacing: -0.015em;
+}
+
+/* ——————————————————————————————————————————————————————————————
+   MOTION SYSTEM · "मौन में सैलाब / The Flood Within the Silence"
+   Shared static chrome the GSAP/Lenis motion layer animates on top of.
+   Strictly within the existing B&W ink palette — no new colors, no glow.
+   —————————————————————————————————————————————————————————————— */
+
+/* The held flood: one fixed, pre-softened dark wash anchored to the bottom.
+   Only transform + opacity are ever animated (by Waterline.tsx) — the soft
+   gradient stops do the blurring, so there is NO per-frame filter cost. */
+.waterline-wash {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -18%;
+  height: 92%;
+  pointer-events: none;
+  will-change: transform, opacity;
+  background:
+    radial-gradient(130% 86% at 50% 116%,
+      color-mix(in srgb, var(--c-ink) 42%, transparent) 0%,
+      color-mix(in srgb, var(--c-ink) 20%, transparent) 34%,
+      color-mix(in srgb, var(--c-ink) 7%, transparent) 56%,
+      transparent 72%);
+}
+
+/* manuscript vignette / deckled inner edge — the journal as a bound object held
+   in the hands. Single fixed pre-rendered layer, behind content, never repaints. */
+.surface::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 220px 56px color-mix(in srgb, var(--c-ink) 8%, transparent);
+}
+
+/* a single faint "surface level" horizon hairline at section thresholds —
+   the line beneath which floods are buried */
+/* width comes from the consumer (block fill, `w-*`, or `inset-x-0`) so the same
+   class serves full-width margins and short flanking rules without !important */
+.surface-hairline {
+  display: block;
+  height: 1px;
+  background: color-mix(in srgb, var(--c-ink-soft) 36%, transparent);
+  transform-origin: left center;
+}
+
+/* manuscript apparatus — folio numbers № 001 (mono, never on Devanagari) */
+.folio-num {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--c-ink-faint);
+}
+
+/* the one gold word per block that trembles but never spills.
+   isolated so the sub-pixel tremor never triggers a layout repaint of siblings. */
+.held-tear {
+  display: inline-block;
+  transform-origin: 50% 60%;
+  isolation: isolate;
+  /* transform only — the standing ±0.4px blur is negligible and a permanent
+     will-change:filter would keep a filter-capable compositor layer alive forever */
+  will-change: transform;
+}
+/* faint dark pool behind the sole gold word — opacity-animatable, never colored */
+.gold-pool {
+  position: relative;
+}
+.gold-pool::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 168%;
+  height: 150%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  pointer-events: none;
+  /* faint steady rubrication wash behind the single gold/accent word — the sacred
+     stain that never fully blooms. Subtle by design within the B&W palette. */
+  opacity: 1;
+  background: radial-gradient(closest-side,
+    color-mix(in srgb, var(--c-ink) 11%, transparent),
+    transparent 72%);
+}
+
+/* the augment-only ink-dot cursor (pointer:fine + non-reduced only) */
+.ink-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-ink);
+  pointer-events: none;
+  z-index: 70;
+  opacity: 0;
+  mix-blend-mode: multiply;
+}
+@media (hover: none), (pointer: coarse) {
+  .ink-cursor { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waterline-wash { will-change: auto; }
+  .held-tear { will-change: auto; }
+  .ink-cursor { display: none; }
 }

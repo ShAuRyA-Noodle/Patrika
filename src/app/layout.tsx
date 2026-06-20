@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Cormorant_Garamond, Tiro_Devanagari_Hindi, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import MotionProvider from "@/components/motion/MotionProvider";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -45,7 +46,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${cormorant.variable} ${tiroHindi.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col surface theme-forest">
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

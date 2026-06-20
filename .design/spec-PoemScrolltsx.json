@@ -1,0 +1,75 @@
+{
+  "component": "PoemScroll.tsx (the full reading manuscript view rendered inside Archive.tsx's AnimatePresence overlay)",
+  "goal": "Make opening a poem the site's single permitted exhale: the held waterline floods up, the manuscript sheet unfurls from its rolled top bar (scaleY + transformOrigin:top, never height), the Devanagari title inks in via the house surfacing reveal, then reading becomes wading — stanzas surface line-by-line at true reading pace inside the overlay's own scroll container, the first stanza opening on an illuminated drop-cap, and the closing signature नीलू शोरी settling like sediment rather than fading. Closing rolls the folio respectfully back up. All transform/opacity/filter only, fully scoped GSAP cleanup on unmount, full reduced-motion parity, Devanagari split at word/line level only. Replaces the current all-framer entry/title/parallax with GSAP for the unfurl+title+signature while keeping framer whileInView for the stanza stagger (no second Lenis).",
+  "choreography": [
+    {
+      "moment": "Folio unfurl on open (the one exhale)",
+      "elements": "overlayRef (backdrop, framer-owned), sheetRef (the .scroll-paper .paper-sheet block), topBarRef (rolled top bar), bottomBarRef (rolled bottom bar)",
+      "animation": "useFolioUnfurl GSAP timeline: backdrop opacity 0→1 (framer, 0.35s) runs in parallel; THEN sheetRef unfurls from transformOrigin:top — scaleY 0.86→1, y 14→0, filter blur(6px)→0, opacity 0→1; topBar settles first (y -6→0, opacity), bottomBarRef trails +0.12s (y 8→0, scaleX 0.94→1) as if weight pulls the scroll open. Waterline crest floods UP via the shared Waterline timeline (separate component, triggered off the same open state). Seeded optionally from the clicked card's originRect via Flip for the sheet origin. Title reveal fires at unfurl end.",
+      "ease": "breath (CustomEase M0,0 C0.16,1 0.3,1 1,1) on sheet scaleY/blur/opacity; bottomBar same ease, +0.12s offset",
+      "timingOrScrub": "timed timeline ~0.9s total, fired on mount via useGSAP keyed to the active poem; backdrop opacity is framer (AnimatePresence initial/animate/exit), GSAP owns the sheet transforms — distinct elements, never the same property",
+      "tech": "GSAP useFolioUnfurl (useGSAP scoped to a wrapper ref); framer-motion only for backdrop opacity in Archive.tsx; Flip optional for origin seed"
+    },
+    {
+      "moment": "Title block surfacing (Devanagari title + gold-rationed romanization)",
+      "elements": "poem.titleDeva h2 (headlineRef), poem.titleRoman italic line, the कवयित्री / author / date apparatus row",
+      "animation": "useDevanagariReveal(headlineRef,{split:'words',trigger:'load',y:24,blur:8}) — each WORD of titleDeva rises y+24 with filter blur(8px)→0, opacity 0→1, staggered 0.11s, condensing out of wet paper. After the Devanagari fully settles, the Fraunces-italic titleRoman fades up (y 12→0, opacity, 0.6s). The mono apparatus row (date/author, JetBrains Mono eyebrow) draws its h-px divider via scaleX from 0 (transformOrigin left) then label fades.",
+      "ease": "breath on all title units; apparatus divider scaleX on breath",
+      "timingOrScrub": "timed, chained off the unfurl timeline completion (title starts at unfurl end so it never surfaces into a font-swap reflow — gated on document fonts.ready upstream in MotionProvider); replaces the current framer h2 blur reveal",
+      "tech": "GSAP useDevanagariReveal (SplitText type:'words', matra-safe runtime guard); replaces motion.h2 initial/animate"
+    },
+    {
+      "moment": "Stanza line-by-line surfacing (reading is wading)",
+      "elements": "each stanza wrapper and its child lines (Devanagari at 1.8 line-height, Latin italic at 1.7); first stanza carries .drop-cap",
+      "animation": "useStaggerReveal(scroller:'overlay') returns framer whileInView variants — per line: opacity 0→1, y 22→0, filter blur(6px)→0; stanza wrapper staggers children. KEEPS the existing framer whileInView pattern (zero extra RAF, no 2nd Lenis in the data-lenis-prevent overlay). Per-poem pacing: each=0.11 default, but दफ़्न सैलाब (poem-02, the drowning poem) uses each=0.16 so its 15 stanzas SINK in one slow line at a time. First stanza's first Devanagari line gets .drop-cap (existing Devanagari-aware 3.4em accent initial).",
+      "ease": "breath (re-tuned from the current [0.2,0.7,0.2,1] to the house [0.16,1,0.3,1]) on each line",
+      "timingOrScrub": "scroll-into-view, viewport once:true margin -60px; framer-owned (overlay path explicitly NOT GSAP ScrollTrigger per hard constraint)",
+      "tech": "framer-motion whileInView variants standardized by useStaggerReveal(scroller:'overlay'); .drop-cap CSS reused"
+    },
+    {
+      "moment": "Closing signature settles like sediment",
+      "elements": "poem.closing नीलू शोरी span + the border-t rule above it",
+      "animation": "the rule above draws in first (scaleX 0→1 from center or left, transformOrigin), THEN the signature SETTLES: y -10→0 over 1.4s with opacity 0→1 — silt coming to rest after the flood, NOT a fade. Gold/accent color held (it is the rationed chromatic event of this block).",
+      "ease": "sediment CustomEase (slow settle, distinct from breath) on the signature; breath on the rule",
+      "timingOrScrub": "scroll-into-view once. Overlay path uses the framer whileInView equivalent (variants with the long sediment-tuned cubic-bezier) to stay on the single overlay scroller; rule draws first then signature offset +0.2s",
+      "tech": "framer-motion whileInView (overlay scroller) with sediment-tuned easing; GSAP sediment ease reserved for the main-document path only"
+    },
+    {
+      "moment": "Folio roll-up on close (respectful re-sealing)",
+      "elements": "sheetRef, topBarRef, bottomBarRef, backdrop, close buttons (header ✕ and footer ← सभी कविताएँ)",
+      "animation": "reverse of open: sheet rolls back UP toward the top bar (scaleY 1→0.86, y 0→14, blur 0→6, opacity→0, transformOrigin:top), bottomBar trails, THEN backdrop opacity→0 (framer exit), waterline re-seals (Waterline timeline reverse). Feels like re-rolling a document, not slamming a tab.",
+      "ease": "breath, reversed timeline",
+      "timingOrScrub": "timed; driven by AnimatePresence exit — useGSAP must run the roll-up BEFORE unmount. Implement via an exit-aware state: onClose triggers GSAP reverse, onComplete sets openId null. Alternatively framer exit handles backdrop while GSAP completes sheet on a tracked exit flag.",
+      "tech": "GSAP useFolioUnfurl reverse + framer AnimatePresence exit (backdrop only); mandatory useGSAP/SplitText.revert() cleanup on unmount"
+    }
+  ],
+  "interactions": [
+    {
+      "on": "Close button hover (header बंद करें ✕ and footer ← सभी कविताएँ) — both marked [data-ink]",
+      "effect": "native color transition retained (accent→ink); InkCursor manifests its faint ink-pool over the [data-ink] target (opacity+scale only). No layout change.",
+      "tech": "existing CSS transition-colors for the button; InkCursor (global component) handles the cursor pool via gsap.quickTo — PoemScroll only adds data-ink attributes"
+    },
+    {
+      "on": "Scroll within the overlay (data-lenis-prevent container)",
+      "effect": "stanzas surface line-by-line as they enter view; the parallax paper-noise layer drifts on transform-only y (kept, but re-tuned to the shared depth feel). No waterline scrub inside the overlay — the overlay scroll is native, the global Waterline is held at its flooded-up crest while open.",
+      "tech": "framer whileInView for stanzas; the noise parallax stays framer useScroll/useTransform on the overlay target (its own scroller) OR a simple CSS-bound transform — transform/opacity only either way"
+    },
+    {
+      "on": "Open of poem-02 (दफ़्न सैलाब) specifically",
+      "effect": "slower per-line pacing (each=0.16 vs 0.11) so the drowning poem's lines sink in one at a time, the page almost running out of breath",
+      "tech": "useStaggerReveal each prop branched on poem.id"
+    }
+  ],
+  "domOrMarkupChanges": "Wrap the existing markup in a scoped ref for useGSAP. Add refs: sheetRef on the .scroll-paper block, topBarRef/bottomBarRef on the two rolled bars, headlineRef on the titleDeva h2. Replace motion.article entry (initial/animate y/opacity) — the article entry is now subsumed by the GSAP unfurl on the sheet, so the outer <article> becomes a plain element (or motion.article with NO entry transition; backdrop handles fade). Replace motion.h2 blur reveal with a plain h2 + headlineRef driven by useDevanagariReveal. Add className=\"drop-cap\" to the FIRST stanza's first Devanagari line (compute si===0 && first deva line). Keep the stanza whileInView variants but standardize them through useStaggerReveal(scroller:'overlay') and retune ease to [0.16,1,0.3,1]; branch each on poem.id. Wrap closing signature in its own whileInView block with the sediment-tuned variant and a preceding rule that scaleX-draws. Add data-ink to onClose button. Keep .scroll-paper .ruled-soft .paper-sheet classes and the rolled-bar gradient markup untouched (they ARE the manuscript chrome). Keep the SVG paper-noise parallax layer (transform-only). No height/top/width animation anywhere.",
+  "usesPrimitives": [
+    "useFolioUnfurl (FolioTransition open/close ritual + waterline exhale handshake)",
+    "useDevanagariReveal (title surfacing, split:words, matra-safe)",
+    "useStaggerReveal (scroller:'overlay' → framer whileInView variants, per-poem each)",
+    "useBreath (NOT used here directly — reading view is still; breath reserved for hero figure/cards)",
+    "Waterline / useScrollWaterline (crest floods up on open, re-seals on close — handshaked, owned by the global component)",
+    "MotionProvider useMotion() (reduce + fine + ease 'breath' + 'sediment' CustomEase)",
+    "css: .drop-cap (illuminated initial), .scroll-paper / .ruled-soft / .paper-sheet (manuscript chrome), .label-deva / .eyebrow (apparatus), .folio-num (№ 00x), .held-tear (not used here)"
+  ],
+  "perfNotes": "Animate ONLY transform (scaleY, scaleX, translateY) + opacity + filter(blur) that always resolves to 0; NEVER height/top/width — the unfurl is scaleY + transformOrigin:top, the rule draws via scaleX, so zero reflow. will-change:transform set just-in-time by GSAP on sheetRef/bars during the unfurl timeline and CLEARED onComplete; will-change:filter on title words during reveal, cleared onComplete. SplitText.revert() in useGSAP cleanup is MANDATORY — the overlay mounts/unmounts on every open/close and Next fast-refresh, so unreverted splits leak DOM and break re-open. useGSAP scoped to the article wrapper ref guarantees context cleanup. The overlay is its own data-lenis-prevent scroll container: stanza reveals stay on framer whileInView (zero extra RAF) — NEVER add a second Lenis or ScrollTrigger scrollerProxy here. GSAP and framer never animate the same property on the same element: framer owns ONLY backdrop opacity (Archive) + stanza/signature whileInView variants; GSAP owns sheet/bars unfurl + title surfacing. Pre-existing SVG paper-noise stays a static fractalNoise image translated on y (no per-frame feTurbulence regeneration). Drop-cap is pure CSS (::first-letter), no JS. Roll-up on close must complete the GSAP reverse BEFORE unmount (tracked exit flag) so the sheet isn't yanked mid-transform.",
+  "reducedMotion": "Via gsap.matchMedia() and useMotion().reduce, full parity not slowed: (1) Open = plain backdrop opacity fade 0.35s (framer), sheet STATIC and fully visible at scaleY:1 (no unfurl, no blur), waterline JUMPS to its flooded position (no scrub/quiver). (2) Title = single 0.4s opacity fade, NO SplitText, no word stagger, no blur, no y. (3) Stanzas = content pre-revealed (opacity 1, no y/blur); if any tween, a single 0.4s opacity only, no per-line stagger. (4) Signature = plain 0.4s opacity fade, no sediment y-drift; rule appears static (no scaleX draw). (5) Close = straight opacity fade, sheet static, waterline jumps back. (6) InkCursor fully disabled (native cursor only) on reduced-motion AND touch. Drop-cap remains (static CSS, no motion). Devanagari is never char-split in any branch."
+}

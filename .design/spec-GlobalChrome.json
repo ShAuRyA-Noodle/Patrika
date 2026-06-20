@@ -1,0 +1,115 @@
+{
+  "component": "GlobalChrome",
+  "goal": "Establish the entire motion FOUNDATION and the always-on chrome that every other component depends on, while owning zero poem content. GlobalChrome wraps the app as the MotionProvider: it registers GSAP plugins + the two house CustomEases ('breath' = M0,0 C0.16,1 0.3,1 1,1, 'sediment' = a slower settle), wires Lenis into a SINGLE shared gsap.ticker RAF (deleting SmoothScroll's own loop), exposes useMotion() => {reduce, fine, lenis, ease:'breath'} via context so no child re-queries matchMedia, and gates a brief reverent first-load intro on document.fonts.ready (600ms max-wait) so the Hero never surfaces into a font-swap reflow. It also renders the four always-on chrome layers back-to-front: the recolored AuroraBackground 'deep currents', the new pre-rasterized rising Waterline, the untouched static paper-grain (::before, left alone), and a faint fixed manuscript .vignette/deckle. Plus: the scroll-progress hairline (moved here from Archive, framer-owned), the de-gimmicked InkCursor, and the FolioTransition (useFolioUnfurl) ritual that turns the card->reading-view modal into a manuscript unfurl + the site's one cathartic waterline exhale. It realizes the master direction by making restraint structural — one ease, one RAF, one rising flood, one permitted exhale — so the surfacing/breath/parallax work in Hero/PullQuote/PoemScroll all share this spine and never fight a second scroller.",
+  "choreography": [
+    {
+      "moment": "First-load intro / loader handoff (the held-breath open). Honors loaderIntro: NOT a spinner, the intro IS the Hero arrival.",
+      "elements": "Clean #f5f5f4 paper field with grain (.surface::before) already painted; masthead hairline rule; पत्रिका wordmark + 'a bilingual journal of poems' subline; the faint Waterline already resting low (translateY ~72%).",
+      "animation": "MotionProvider holds a master intro timeline gated until document.fonts.ready (resolves OR 600ms max-wait, whichever first). Step 1: masthead rule SCORES itself left-to-right (scaleX 0->1, transformOrigin left). Step 2 (+0.15s): wordmark + subline fade up (opacity 0->1, y 10->0). Step 3: timeline does NOT animate the headline itself — it sets a body data-attr / context flag intro:'ready' that releases Hero's useDevanagariReveal(trigger:'load') so the headline surfaces word-by-word (gold सैलाब last) with NO separate enter screen. Total controlled sequence ~1.8s.",
+      "ease": "'breath' CustomEase (M0,0 C0.16,1 0.3,1 1,1) for rule score + wordmark; headline handoff uses the same 'breath' inside useDevanagariReveal.",
+      "timingOrScrub": "Timed (load). Rule scaleX ~0.7s; wordmark +0.15s offset, 0.6s; then flag flip releases Hero reveal. No scrub.",
+      "tech": "GSAP timeline inside useGSAP scoped to provider root; CustomEase.create for 'breath'/'sediment' registered first. Font gate via document.fonts.ready Promise.race with a 600ms timeout. Context flag (not a re-render storm) consumed by useDevanagariReveal(trigger:'load')."
+    },
+    {
+      "moment": "Single-RAF Lenis<->ScrollTrigger wiring (the foundational perf contract, MotionProvider).",
+      "elements": "Whole document scroll; Lenis instance; gsap.ticker; ScrollTrigger.",
+      "animation": "No visible animation — this is the engine. Delete SmoothScroll.tsx's local requestAnimationFrame loop. Create Lenis (keep duration 1.25, exponential easing, lerp .085, reduce=>lerp 1), then gsap.ticker.add((t)=>lenis.raf(t*1000)); gsap.ticker.lagSmoothing(0); lenis.on('scroll', ScrollTrigger.update). One loop drives everything (waterline scrub, parallax, breath are all on this ticker).",
+      "ease": "n/a (Lenis exponential easing preserved); GSAP tweens elsewhere use 'breath'.",
+      "timingOrScrub": "Continuous shared ticker; downstream ScrollTriggers are scrub-based and read window scroll (Lenis transforms native scroll, window stays truthful — no scrollerProxy needed for the main document).",
+      "tech": "MotionProvider useEffect (SSR-safe, all GSAP client-side). lenis exposed via useMotion(). The reading overlay is a SEPARATE data-lenis-prevent container — its stanza reveals stay on framer whileInView, NO second Lenis/scrollerProxy."
+    },
+    {
+      "moment": "The Held Waterline rising with global scroll (THE central load-bearing mechanic — raise the flood, never spill).",
+      "elements": "<Waterline/> = position:fixed inset-0 z-0 layer holding ONE pre-rasterized blurred dark radial/linear gradient wash anchored to bottom, behind <main>, above AuroraBackground. Writes CSS var --waterline-progress on :root.",
+      "animation": "translateY rises from ~72% (hero) to ~28% (संग्रह grid) as scrollYProgress 0->1; opacity 0.0->0.22 over same range; cooler-gray tint accumulates toward संग्रह. Always clamps short of poem text — never covers words. Sets --waterline-progress (0..1) consumed by Hero figure bottom-fade (opacity-only sink) and PullQuote crest.",
+      "ease": "ease:'none' for the scrub (linear to scroll) — the dread accumulates with the reader's own motion, not an easing curve.",
+      "timingOrScrub": "Scrub:true, mapped to document scrollYProgress on the shared ticker.",
+      "tech": "GSAP module ScrollTrigger (scrub) tweening transform + opacity of the pre-blurred gradient image — NEVER live-blur the large node (Direction A risk #4). will-change:transform on the wash only. AuroraBackground recolored as deep currents (drift lengthened toward 60-80s, palette-only, no markup change beyond timings)."
+    },
+    {
+      "moment": "Waterline PEAK + HOLD at the PullQuote crest (handoff to PullQuote's Held-Tear moment).",
+      "elements": "The waterline wash crest; PullQuote band region.",
+      "animation": "A nested ScrollTrigger pins the crest just below the centered couplet and applies a ±2px yoyo 'quiver' (transform-only) — water that wants to spill but is not allowed. GlobalChrome owns the wash; PullQuote owns the rules/word tremor and reads --waterline-progress.",
+      "ease": "'sine.inOut' for the quiver yoyo (organic micro-swell), via useBreath-style loop.",
+      "timingOrScrub": "Pinned trigger over PullQuote range; quiver is a repeat:-1 yoyo timed loop (period ~5s), NOT scrubbed, capped at ±2px so it never completes into a spill.",
+      "tech": "Nested GSAP ScrollTrigger + a useBreath(mode:'tremor'-like) yoyo on the crest. Transform-only, sub-pixel = effectively free. will-change:transform cleared when off-screen."
+    },
+    {
+      "moment": "Scroll-progress hairline (moved here from Archive so chrome lives in GlobalChrome).",
+      "elements": "fixed top 2.5px bar, bg var(--c-accent), z-60.",
+      "animation": "scaleX 0->1 driven by scrollYProgress, transformOrigin 0%.",
+      "ease": "framer useSpring smoothing (stiffness 120, damping 30, mass 0.3) — kept exactly as Archive had it.",
+      "timingOrScrub": "Scrubbed to scroll via framer useScroll/useSpring.",
+      "tech": "framer-motion (DELIBERATE lib split: framer owns the hairline + overlay backdrop opacity; GSAP owns waterline/surfacing/breath/unfurl — the two libs NEVER animate the same property on the same element). Transform-only (scaleX)."
+    },
+    {
+      "moment": "The Unfurling Folio + Flood Exhale (card -> reading view) — the site's ONE permitted exhale. Open.",
+      "elements": "AnimatePresence overlay backdrop; Waterline crest; manuscript sheetRef; topBarRef (rolled bar) + bottomBarRef; clicked card originRect; PoemScroll title.",
+      "animation": "Timeline: (1) backdrop opacity 0->1 (0.35s, framer). (2) Waterline crest FLOODS UP (translateY -> ~-10%). (3) sheet UNFURLS from rolled top bar: transformOrigin:top, scaleY 0.86->1 + y settle + blur 6px->0 — seeded from clicked card's bounding rect via GSAP Flip. (4) bottomBar trails +0.12s as if weight pulls it open. (5) title inks in via useDevanagariReveal(words). NEVER animate height/top — scaleY + transformOrigin only (no reflow).",
+      "ease": "'breath' for unfurl/settle and crest flood-up; title via useDevanagariReveal ('breath').",
+      "timingOrScrub": "Timed open sequence (~0.9s total); stanzas thereafter reveal via framer whileInView inside the overlay's own scroll container (no 2nd Lenis).",
+      "tech": "useFolioUnfurl: GSAP timeline + Flip synced to open/close state; framer handles ONLY backdrop opacity. useGSAP cleanup MANDATORY on unmount (overlay mounts/unmounts) + SplitText.revert. Distinct elements per lib so transforms never collide."
+    },
+    {
+      "moment": "Folio close — respectfully re-rolling the manuscript + re-sealing the flood.",
+      "elements": "sheetRef, topBarRef, bottomBarRef, backdrop, Waterline crest.",
+      "animation": "Reverse: sheet rolls back UP toward the top bar (scaleY 1->0.86, transformOrigin:top, blur 0->6, y settle back), then backdrop clears (framer exit 0.35s), then Waterline crest re-seals (translateY back to its scroll-mapped rest). Dismissing feels like re-rolling a document, not slamming a tab.",
+      "ease": "'breath' for roll-up + re-seal; backdrop framer linear-ish 0.35s.",
+      "timingOrScrub": "Timed reverse (~0.7s). On unmount, GSAP context reverts and waterline returns to scrub control.",
+      "tech": "useFolioUnfurl reverse timeline; AnimatePresence exit for backdrop. useGSAP/gsap.context scoped revert on unmount restores DOM (essential for Next fast-refresh + re-open)."
+    },
+    {
+      "moment": "InkCursor — the de-gimmicked patient reading hand (augments, never hides native cursor).",
+      "elements": "single fixed ~7px near-black SVG dot, pointer-events:none, mounted once by GlobalChrome.",
+      "animation": "Follows pointer with inertial lag; at rest opacity ~0. Over [data-ink] elements (cards, links, close button) eases to opacity 1 and a faint ink-pool grows (scale + opacity only). Native cursor stays visible underneath.",
+      "ease": "gsap.quickTo inertial smoothing on x/y (transform only); opacity/scale tweens use 'breath' short durations (~0.3s).",
+      "timingOrScrub": "Event-driven (pointermove + [data-ink] enter/leave). No scroll, no RAF beyond quickTo's internal tween.",
+      "tech": "GSAP quickTo for transform. Gated HARD on matchMedia('(pointer:fine)') AND non-reduced-motion; instantly disabled on touch/reduced (native cursor only). It is the FIRST element cut in review if it reads as a gimmick — fully subtractable."
+    }
+  ],
+  "interactions": [
+    {
+      "on": "Page scroll (whole document, via Lenis on the shared gsap.ticker)",
+      "effect": "Waterline translateY rises (72%->28%) + opacity 0->0.22, writing --waterline-progress; scroll-progress hairline scaleX grows; downstream parallax/surfacing fire. The reader is bodily RAISING the buried flood.",
+      "tech": "GSAP ScrollTrigger scrub (waterline) + framer useScroll/useSpring (hairline). Single RAF — Lenis.raf handed to gsap.ticker, lenis.on('scroll', ScrollTrigger.update)."
+    },
+    {
+      "on": "Reaching the PullQuote section",
+      "effect": "Waterline crest pins + quivers ±2px just below the couplet (held, never spilling); PullQuote reads --waterline-progress for its crest alignment.",
+      "tech": "Nested GSAP ScrollTrigger (pin) + sine.inOut yoyo loop, transform-only, capped."
+    },
+    {
+      "on": "Click a PoemCard (onOpen, openId set in Archive)",
+      "effect": "FolioTransition fires: backdrop fades in, waterline floods up, manuscript sheet unfurls from rolled top bar (Flip-seeded from card rect), title inks in.",
+      "tech": "useFolioUnfurl GSAP timeline + Flip; framer AnimatePresence drives backdrop opacity only."
+    },
+    {
+      "on": "Close reading view (button / overlay dismiss)",
+      "effect": "Sheet rolls back up, backdrop clears, waterline re-seals to scroll-mapped rest.",
+      "tech": "useFolioUnfurl reverse timeline + AnimatePresence exit; gsap.context revert on unmount."
+    },
+    {
+      "on": "Pointer hover over [data-ink] interactive elements (pointer:fine only)",
+      "effect": "InkCursor dot eases to opacity 1, faint ink-pool grows; native cursor untouched.",
+      "tech": "GSAP quickTo (transform) + short 'breath' opacity/scale tweens; matchMedia(pointer:fine) gate."
+    },
+    {
+      "on": "Document fonts ready (or 600ms max-wait)",
+      "effect": "Intro timeline released: masthead rule scores, wordmark fades up, then context flag releases Hero's load-time surfacing so the headline never surfaces into a font-swap reflow.",
+      "tech": "document.fonts.ready Promise.race(timeout); GSAP timeline + context flag consumed by useDevanagariReveal(trigger:'load')."
+    }
+  ],
+  "domOrMarkupChanges": "Introduce GlobalChrome as a 'use client' MotionProvider wrapping {children} in layout.tsx body (currently children render directly). REFACTOR SmoothScroll.tsx: delete its local requestAnimationFrame loop; either fold Lenis creation into MotionProvider or have MotionProvider own the ticker wiring — Lenis.raf is handed to gsap.ticker (lagSmoothing(0)) and lenis.on('scroll', ScrollTrigger.update). MOVE the scroll-progress hairline out of Archive.tsx into GlobalChrome (Archive keeps only poem orchestration + the AnimatePresence overlay markup, but the overlay now wires refs — sheetRef/topBarRef/bottomBarRef + originRect — into useFolioUnfurl). ADD a <Waterline/> fixed z-0 layer (single pre-rasterized blurred gradient div, sets --waterline-progress on :root) painted between AuroraBackground and grain. ADD a fixed pointer-events:none .vignette/deckle layer (single pre-rendered, no per-frame repaint). ADD <InkCursor/> (one fixed SVG dot) and tag interactive elements (PoemCard, links, close button) with data-ink. globals.css ADDITIONS only (no edits to existing rules): .folio-num, .vignette, .held-tear, .gold-pool, a will-change discipline helper; leave .surface::before grain, .drop-cap, .live-bg, background-attachment ban UNTOUCHED. AuroraBackground: only lengthen drift durations toward 60-80s and reframe as deep currents (palette already correct). New CSS var --waterline-progress declared on :root (default low). No layout/width/top/height animated anywhere.",
+  "usesPrimitives": [
+    "MotionProvider (+ motion.ts init module)",
+    "Waterline (provider + component) — useScrollWaterline",
+    "InkCursor",
+    "FolioTransition (open/close) — useFolioUnfurl",
+    "useDevanagariReveal",
+    "useBreath",
+    "useStaggerReveal (scroll-into-view, scroller-aware)",
+    "css utilities (globals.css additions)"
+  ],
+  "perfNotes": "SINGLE RAF is the cardinal rule: delete SmoothScroll's requestAnimationFrame; hand lenis.raf to gsap.ticker with lagSmoothing(0) and lenis.on('scroll', ScrollTrigger.update) — never a second loop. Animate ONLY transform + opacity + filter(blur, small text runs, always resolving to 0). NEVER layout/width/top/height — folio unfurl uses scaleY + transformOrigin:top, never height. Waterline is a PRE-RASTERIZED blurred gradient image; do NOT live-blur the large fixed node per frame (animate its transform/opacity only). Keep AuroraBackground blobs as the existing fixed pre-blurred layer (will-change:transform already set), just slower drift. The static .surface::before paper grain stays untouched (fixed, GPU-cheap, no scroll repaint) and background-attachment:fixed stays banned. .vignette is one fixed pre-rendered layer, no per-frame repaint. will-change applied just-in-time by GSAP and cleared onComplete / when ScrollTrigger leaves; only on actively animating layers (waterline crest, unfurl sheet, ink dot). useGSAP/gsap.context scoped cleanup in MotionProvider AND in useFolioUnfurl (overlay mounts/unmounts; revert SplitText, kill ScrollTriggers) — mandatory for Next fast-refresh. InkCursor uses gsap.quickTo (no manual RAF). Lib discipline: framer owns ONLY the progress hairline + overlay backdrop opacity; GSAP owns waterline/surfacing/breath/unfurl/cursor — never the same property on the same element. ScrollTrigger reads truthful window scroll (no scrollerProxy); overlay is data-lenis-prevent with framer whileInView reveals (zero extra RAF). Font-gate intro prevents giant-Devanagari layout shift (next/font display:swap fallback metrics + fonts.ready 600ms cap).",
+  "reducedMotion": "gsap.matchMedia() branch wraps every GSAP animation for TRUE parity (not slowed): (1) Lenis created with lerp:1, smoothWheel:false (already in SmoothScroll) — effectively native scroll; ticker wiring stays so ScrollTrigger.update still fires but scrub targets are static. (2) Waterline: static at a low fixed position (or hidden) — no scrub, no quiver, --waterline-progress pinned to a constant; Hero figure does not sink. (3) Intro: masthead rule + wordmark appear via a single 0.4s opacity fade; the headline is static and fully visible (Hero's reveal collapses to a 0.4s opacity fade, no split/blur/y) — no surfacing stagger, no font-gate hold needed beyond swap. (4) Scroll-progress hairline: kept (it is informational, scaleX only) — acceptable, or collapse to a static thin rule if motion-sensitive review prefers. (5) FolioTransition: straight opacity fade in/out (0.35s), sheet static, no scaleY/blur, waterline JUMPS to position. (6) InkCursor: not mounted at all (native cursor only) — also disabled on touch / non-(pointer:fine). (7) AuroraBackground blobs: animation:none (already handled by existing @media prefers-reduced-motion rule in globals.css). All content is pre-revealed and fully legible; effects never obscure poem text in either branch."
+}

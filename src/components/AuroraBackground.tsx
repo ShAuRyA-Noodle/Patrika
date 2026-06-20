@@ -1,6 +1,6 @@
 "use client";
 
-// Fixed, pointer-events-none warm aurora that drifts slowly behind all content.
+// Fixed, pointer-events-none monochrome drift that moves slowly behind all content.
 // Sits behind the page (painted before <main>, same stacking context) and never
 // intercepts clicks. Motion is pure CSS transform, so it costs almost nothing.
 export default function AuroraBackground() {

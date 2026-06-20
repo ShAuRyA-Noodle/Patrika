@@ -1,0 +1,74 @@
+{
+  "component": "PullQuote.tsx",
+  "goal": "Render ACT II \"Pressure\" — the chest at its tightest. As the band centers, its two hairline rules draw inward toward the अनकहा दर्द label (tightening the frame like a held breath), the couplet surfaces word-by-word out of wet paper on the house ease, the global Waterline crest peaks and HOLDS just below the couplet (quivering, never spilling, never covering text), and the single gold word छलकना (\"to spill\") gains a sub-subliminal vertical tremor — a tear that swells but never falls. The one word meaning \"spill\" is the one thing in motion, and it never spills. This is the poem's thesis rendered as motion-restraint. Migrate the component off its standalone framer useScroll/useTransform onto the shared GSAP single-RAF ticker so there is no parallel scroll math.",
+  "choreography": [
+    {
+      "moment": "Band scrub parallax (depth, the page moving through liquid)",
+      "elements": "The inner centered .mx-auto wrapper holding couplet + label (currently the motion.div with style={{y}})",
+      "animation": "translateY scrubbed from +60px to -60px across the section's scroll range (from:60, to:-60). Replaces the current framer useScroll/useTransform y exactly, same values, now on the shared GSAP ticker.",
+      "ease": "none (linear scrub — depth must track scroll 1:1, never ease)",
+      "timingOrScrub": "scrub:true, ScrollTrigger start 'top bottom' end 'bottom top' (mirrors the existing offset ['start end','end start'])",
+      "tech": "GSAP — useScrubParallax(innerRef,{from:60,to:-60,axis:'y'}). Integrated in the shared Lenis/gsap.ticker RAF (MotionProvider), NOT a second loop. Remove the framer useScroll/useTransform/motion.div wrapper."
+    },
+    {
+      "moment": "The couplet surfaces (signature 'surfacing through water' arrival, gold छलकना last)",
+      "elements": "The blockquote Devanagari couplet 'जो चाहते हुए भी नहीं छलकता, / पर छलकना चाहता है।' — split at WORD level; छलकना carries [data-gold]",
+      "animation": "Each WORD rises from y+24 and filter blur(8px)→0, opacity 0→1, staggered 0.11s, condensing out of the paper. The gold छलकना clarifies LAST: +0.25s delay, duration×1.3, plus a one-shot scale 1.015→1 and its faint .gold-pool wash easing in behind it. Replaces the current framer whileInView blockquote reveal.",
+      "ease": "breath (CustomEase 'M0,0 C0.16,1 0.3,1 1,1', mirrors existing cubic-bezier(0.16,1,0.3,1))",
+      "timingOrScrub": "timed, trigger:'scroll' (fires once when band reaches ~50% viewport, start 'top 60%', once:true via ScrollTrigger toggle). Base duration 1.0s.",
+      "tech": "GSAP — useDevanagariReveal(quoteRef,{split:'words',goldLast:true,trigger:'scroll',y:24,blur:8,stagger:0.11}). SplitText type:'words' ONLY (runtime guard throws on 'chars' for Devanagari). useGSAP scope=sectionRef; SplitText.revert() on cleanup."
+    },
+    {
+      "moment": "Rules draw inward toward the label (the frame tightens — held breath)",
+      "elements": "The two hairline rules flanking the अनकहा दर्द label (the two <span class='h-px w-12 bg-rule'>), plus the label fade",
+      "animation": "Each rule animates scaleX from 0→1 with transformOrigin set toward the label (left rule origin:right, right rule origin:left) so they appear to draw INWARD and converge on अनकहा दर्द, tightening the frame. The अनकहा दर्द label fades opacity 0→1 immediately after the rules meet (+0.15s). transformOrigin/scaleX only — never animate width.",
+      "ease": "breath",
+      "timingOrScrub": "timed, fires on the same scroll trigger as the couplet but offset to land AFTER the couplet settles (rules start ~+0.9s into the reveal timeline). Rules 0.7s; label fade 0.6s. once:true.",
+      "tech": "GSAP — part of the useDevanagariReveal timeline OR a sibling gsap.timeline inside the same useGSAP scope, sharing the ScrollTrigger. Distinct elements from any framer animation."
+    },
+    {
+      "moment": "The Held Tear — छलकना trembles, never falls (perpetual, post-arrival)",
+      "elements": "The gold word छलकना wrapped in a .held-tear span (the existing <span text-gold>)",
+      "animation": "After the surfacing reveal completes, छलकना gains an almost-subliminal vertical tremor: y oscillates ≤3px on a ~5s loop, with blur peaking at 0.4px at the extremes, no scale. Amplitude is CAPPED so it never completes into a fall — a swelling tear held back. transform+opacity/filter only, sub-pixel.",
+      "ease": "sine.inOut (yoyo, repeat:-1)",
+      "timingOrScrub": "timed perpetual loop, started onComplete of the couplet reveal so it never tremors before it has surfaced. period 5s.",
+      "tech": "GSAP — useBreath(goldWordRef,{mode:'tremor',y:-3,period:5}). One shared idle rhythm with the bua figure and cards. .held-tear gives transform-origin:center + isolation for the sub-pixel tremor."
+    },
+    {
+      "moment": "The Waterline crest peaks and HOLDS below the couplet (global mechanic climaxing here)",
+      "elements": "The fixed global Waterline gradient layer (Waterline.tsx, z-0 behind main) — NOT owned by PullQuote, but PullQuote provides the pin anchor and reads --waterline-progress",
+      "animation": "As global scroll reaches this band, the rising dark wash's crest PEAKS just below the centered couplet and HOLDS (pinned), then quivers ±2px — water that wants to spill but is not allowed. The crest is clamped so it NEVER rises over the couplet text. translateY + opacity only on a pre-rasterized pre-blurred gradient (no live blur).",
+      "ease": "none for the scrub-to-peak; sine.inOut for the ±2px quiver yoyo",
+      "timingOrScrub": "scrub for the rise into peak; nested pinned ScrollTrigger holds the crest while the band is centered; quiver is a perpetual ≤2px transform yoyo via useBreath tremor on the crest",
+      "tech": "GSAP — Waterline's own module ScrollTrigger + useBreath. PullQuote exposes a ref/data attribute (e.g. data-waterline-crest-anchor on sectionRef) the Waterline nested ScrollTrigger pins against. PullQuote only consumes --waterline-progress; it does not animate the wash itself (no two libs on one element)."
+    }
+  ],
+  "interactions": [
+    {
+      "on": "scroll (band entering viewport, once)",
+      "effect": "Couplet surfaces word-by-word; gold छलकना clarifies last with gold-pool; rules draw inward; label fades in — the frame tightens",
+      "tech": "GSAP useDevanagariReveal + sibling timeline on a single ScrollTrigger (once:true), shared Lenis/gsap.ticker"
+    },
+    {
+      "on": "scroll (global document progress passing this band)",
+      "effect": "Waterline crest peaks and holds just below the couplet, quivering ±2px, never covering text",
+      "tech": "Waterline.tsx ScrollTrigger (scrub + nested pin) anchored to PullQuote's section; PullQuote reads --waterline-progress"
+    },
+    {
+      "on": "idle (after reveal completes)",
+      "effect": "छलकना trembles vertically ≤3px / blur≤0.4px on a 5s loop, never falling",
+      "tech": "GSAP useBreath mode:'tremor', sine.inOut yoyo repeat:-1"
+    }
+  ],
+  "domOrMarkupChanges": "Convert to 'use client' GSAP component. (1) Remove framer-motion imports (motion, useScroll, useTransform, useReducedMotion) and the standalone scroll math; this component no longer runs its own framer parallax. (2) sectionRef on <section>; add data-waterline-crest-anchor so the global Waterline can pin its crest here. (3) Replace the motion.div parallax wrapper with a plain <div ref={innerRef}> driven by useScrubParallax. (4) Replace motion.blockquote with a plain <blockquote ref={quoteRef}> (SplitText splits its words at runtime); keep the two <br/>-separated lines so word-splitting stays line-aware and matra-safe. (5) Wrap the gold word in <span ref={goldWordRef} className='held-tear text-[color:var(--c-gold)]' data-gold>छलकना</span>. (6) Give each flanking rule a ref (or shared class) so the inward scaleX timeline can target them with proper transformOrigin (left rule origin-right, right rule origin-left); set them to scaleX(0) initial. (7) Add .gold-pool ::after hook on the held-tear span. (8) Keep classes display-tight, label-deva, var(--font-deva), and all palette tokens unchanged. All GSAP inside one useGSAP({scope:sectionRef}) with SplitText.revert() cleanup.",
+  "usesPrimitives": [
+    "MotionProvider (shared CustomEase 'breath' + single Lenis/gsap.ticker RAF + useMotion reduce/fine context)",
+    "useDevanagariReveal (couplet word-surfacing, goldLast)",
+    "useScrubParallax (band depth, from:60 to:-60)",
+    "useBreath (mode:'tremor' on छलकना; also drives Waterline crest quiver)",
+    "Waterline / useScrollWaterline (crest peak+hold+quiver below couplet)",
+    "css utilities: .held-tear, .gold-pool, existing .label-deva + .display-tight"
+  ],
+  "perfNotes": "Animate ONLY transform (translateY, scaleX, scale) + opacity + filter(blur, always resolving to 0 on reveal; ≤0.4px capped on tremor). NEVER animate width/height/top/left — the inward rules use scaleX+transformOrigin, never width, so zero reflow. will-change:filter set just-in-time by GSAP on the splitting reveal and cleared onComplete; will-change:transform only on the actively-parallaxing inner wrapper and the tremoring word, cleared when off-screen. SplitText.revert() in useGSAP cleanup is mandatory (Next fast-refresh + the band may unmount). Single shared RAF: this component adds ScrollTriggers to the existing gsap.ticker (lagSmoothing 0) — no second loop, no parallel framer scroll math. Waterline crest is a pre-rasterized pre-blurred gradient (no live-blur on a large node). Sub-pixel tremor is effectively free. GSAP and framer never touch the same element here — framer is removed from this component entirely; framer remains only on the global progress hairline and modal backdrop.",
+  "reducedMotion": "Gate via gsap.matchMedia (and useMotion().reduce) for true parity, not slowed. Under prefers-reduced-motion: (1) couplet does a single 0.4s opacity fade-in, no SplitText, no blur, no y, no per-word stagger — content rendered fully sharp; (2) rules are pre-drawn at scaleX(1), no inward draw; label fades with the couplet; (3) gold छलकना is static gold with no tremor and no gold-pool animation (pool either static-faint or omitted); (4) band parallax disabled (from=to=0, static); (5) Waterline is static at a low fixed position with no scrub and no quiver (handled in Waterline.tsx but consistent here). matchMedia cleanup reverts all of the above; will-change removed."
+}

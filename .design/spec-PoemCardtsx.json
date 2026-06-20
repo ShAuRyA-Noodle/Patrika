@@ -1,0 +1,77 @@
+{
+  "component": "PoemCard.tsx",
+  "goal": "Recast each grid card from a \"button\" into one of three quietly breathing manuscript folios (№ 001–003) in the संग्रह index — ACT III, \"breath returned to the reader.\" The card must read as a living, closed door: perpetually alive via a shared 8s breath rhythm (useBreath), arriving by surfacing on scroll (not sliding as a block), and reacting to the reading hand (InkCursor + hover) with restraint, never as a clicky UI button. It also seeds the open ritual: its bounding rect is the origin Flip rect handed to useFolioUnfurl. All motion is transform/opacity/filter only, on the single house \"breath\" ease, with full reduced-motion parity. The card never competes with the poem text and never introduces a second gold/chromatic event — the only rationed gold remains its sibling blocks' single gold word, so the card stays monochrome ink.",
+  "choreography": [
+    {
+      "moment": "Entrance — folio surfaces into the grid (ACT III index appears)",
+      "elements": "Whole card root (motion.button) plus, as inner staggered units: the № 001 folio-number label, the plate (Devanagari cardTitle or image), the italic roman subtitle, the blurb, and the पढ़िए → link.",
+      "animation": "Replace the current framer whileInView block-slide (opacity 0→1, y:44) with the shared useStaggerReveal(scroller:'window') GSAP ScrollTrigger path: the card root surfaces y:22→0, filter blur(6px)→0, opacity 0→1; its internal lines (folio-num, plate, subtitle, blurb, link) stagger each:0.11 in the same surfacing. Per-card cascade across the 3-col grid via the trigger's batch index (≈0.1 * column index) so folios ink in left-to-right like a ruled index being written, NOT all at once. The Devanagari cardTitle on the plate, if revealed as text, uses useDevanagariReveal split:'words' (cardTitles मौन वेदना / दफ़्न सैलाब / अनकहा दर्द are 2 words each — word-level only, NEVER chars).",
+      "ease": "breath — CustomEase 'breath' M0,0 C0.16,1 0.3,1 1,1 (mirrors existing cubic-bezier(0.16,1,0.3,1)); duration ~0.9–1.0s",
+      "timingOrScrub": "Timed, fired once on scroll-into-view. ScrollTrigger start:'top 85%', once:true (batched across the grid). NOT scrubbed — entrance is a discrete arrival, not scroll-linked.",
+      "tech": "GSAP via useStaggerReveal(cardRef,{each:0.11,start:'top 85%',y:22,blur:6,scroller:'window'}); cardTitle text via useDevanagariReveal(plateRef,{split:'words',trigger:'scroll'}). framer entrance variant on motion.button is REMOVED so GSAP owns this transform/opacity (no dual-library fight)."
+    },
+    {
+      "moment": "Perpetual breath — three living folios, not three buttons",
+      "elements": "The square plate (and its cardTitle/image) breathes; the card root stays still so layout is stable. Each of the 3 cards shares the same global 8s rhythm via useBreath so the grid reads as one breathing organism, not three independent loops.",
+      "animation": "useBreath on the plate: y:-6, scale:1.015, opacity micro-swell 0.04, mode:'breath'. Amplitude capped at ≤6px / 0.04 opacity (craft discipline — must read as alive, never as bobbing). Replaces the ad-hoc .group-hover plate scale-as-only-life. Starts after the entrance reveal completes (onComplete chains into the breath tween) so it never fights the surfacing.",
+      "ease": "sine.inOut (continuous), period 8s, yoyo repeat:-1",
+      "timingOrScrub": "Timed perpetual loop, transform+opacity only. Paused via ScrollTrigger when the card is off-screen (no idle RAF cost for unseen cards) and fully killed under reduced-motion.",
+      "tech": "GSAP useBreath(plateRef,{period:8,y:-6,scale:1.015,opacity:0.04,mode:'breath'}). All three card instances read the same period so phases align into one rhythm."
+    },
+    {
+      "moment": "Hover / reading-hand approach — the door acknowledges, does not pop",
+      "elements": "Card root (lift), .poem-card box-shadow (existing CSS), the पढ़िए → arrow glyph, plate (settle into the lift), and the InkCursor ink-pool growing over the card surface.",
+      "animation": "On hover the card lifts y:-10 (kept from current spec, transform only) and the existing .poem-card box-shadow deepens via its CSS transition. The arrow → eases translateX +6px (existing group-hover, kept). The plate does NOT additionally scale on hover anymore (breath owns the plate's life) — instead the breath amplitude is gently damped ~30% on hover so the folio 'holds still to be read.' The InkCursor (global primitive) eases opacity 0→1 and grows its faint near-black ink-pool over the card because the root carries data-ink. Native cursor never hidden.",
+      "ease": "breath for the lift settle; CSS cubic-bezier(0.16,1,0.3,1) 0.5s for box-shadow (existing); arrow uses existing 0.5s transition. InkCursor inertia via gsap.quickTo.",
+      "timingOrScrub": "Hover-triggered, timed. Lift via framer whileHover (root transform) OR a GSAP hover tween on the breath timeline's timeScale — choose framer for the y:-10 (cheap, already wired) so GSAP keeps the plate breath and framer keeps the root lift: distinct elements, no shared-property fight.",
+      "tech": "framer whileHover={{y:-10}} on root (transform only). box-shadow + arrow via existing CSS group-hover. data-ink attribute on root opts the card into the global InkCursor pool. Optional: onHoverStart/End damp useBreath via tl.timeScale()."
+    },
+    {
+      "moment": "Click / open — folio hands off to the unfurl ritual (ACT IV exhale begins)",
+      "elements": "The clicked card's bounding rect (getBoundingClientRect) is captured and passed up as originRect; a brief press-settle on the card root; then the card visually yields as the FolioTransition takes over.",
+      "animation": "On click, capture the card's rect and call onOpen(rect). A tiny press feedback: card root scale 1→0.99→1 (≤1% , transform only, ~0.18s) acknowledging the press — then useFolioUnfurl seeds the manuscript unfurl from this exact rect via GSAP Flip, so the reading sheet appears to grow out of this folio rather than from a generic center. The card itself does not animate further (the overlay owns the exhale); under the overlay the grid simply fades behind the backdrop (framer backdrop opacity, owned by Archive).",
+      "ease": "breath for the press-settle; the unfurl ease lives in useFolioUnfurl (breath).",
+      "timingOrScrub": "Click-triggered, timed and one-shot. The rect must be read synchronously in the click handler BEFORE the overlay mounts.",
+      "tech": "onClick reads ref.current.getBoundingClientRect(); calls onOpen(rect). Press-settle via framer whileTap={{scale:0.99}} (transform only) on root. originRect flows to Archive → useFolioUnfurl Flip.from. No layout animation."
+    }
+  ],
+  "interactions": [
+    {
+      "on": "hover (pointer:fine only)",
+      "effect": "Card lifts y:-10, .poem-card box-shadow deepens, पढ़िए arrow slides +6px, plate breath damps ~30% (holds still to be read), InkCursor ink-pool fades/grows over the card.",
+      "tech": "framer whileHover (root transform) + existing CSS group-hover transitions + global InkCursor reading data-ink; optional GSAP timeScale damp on the breath tl."
+    },
+    {
+      "on": "focus-visible (keyboard)",
+      "effect": "Existing focus ring (ring-2 var(--c-accent), paper offset) retained for a11y; no motion change so keyboard users get the same legible state without jank.",
+      "tech": "Tailwind focus-visible:ring classes already present — untouched."
+    },
+    {
+      "on": "click / Enter / Space",
+      "effect": "Brief press-settle (scale 0.99), capture bounding rect, invoke onOpen(rect) which seeds the folio-unfurl exhale from this card.",
+      "tech": "framer whileTap scale; onClick getBoundingClientRect → onOpen(rect) → useFolioUnfurl Flip origin."
+    },
+    {
+      "on": "scroll into view",
+      "effect": "Folio surfaces (y+blur+opacity) and inner lines stagger in; once revealed it locks and begins its perpetual breath.",
+      "tech": "useStaggerReveal(scroller:'window') GSAP ScrollTrigger batch, once:true, then onComplete chains useBreath."
+    },
+    {
+      "on": "scroll out of view",
+      "effect": "Breath tween paused to save RAF for off-screen folios; resumes on re-enter.",
+      "tech": "ScrollTrigger onToggle pauses/resumes the useBreath timeline (transform/opacity only)."
+    }
+  ],
+  "domOrMarkupChanges": "Add a JetBrains Mono folio-number label at the top of the body (or over the plate corner) rendering poem.number (№ 001–003) using the new .folio-num utility — currently the card never surfaces its number; this is what makes it read as a manuscript folio, not a thumbnail. Add data-ink to the motion.button root so the global InkCursor manifests over it. Wrap inner content lines (folio-num, subtitle, blurb, link) so useStaggerReveal can target them as stagger units (e.g. a shared class or direct children of a scoped wrapper). Change onOpen signature from () => void to (rect: DOMRect) => void and read ref.current.getBoundingClientRect() in the click handler (requires a useRef on the button). Add a plateRef on the square plate for useBreath/useDevanagariReveal. Keep the Devanagari cardTitle as ONE text node split at word level only (or leave fully static) — never wrap individual Devanagari glyphs. No layout-affecting structural change; the aspect-square plate, body padding, and grid placement are unchanged so nothing reflows.",
+  "usesPrimitives": [
+    "useStaggerReveal (scroller:'window', GSAP ScrollTrigger batch)",
+    "useBreath (mode:'breath', plate, 8s shared rhythm)",
+    "useDevanagariReveal (split:'words' for cardTitle, optional)",
+    "InkCursor (data-ink hook on root)",
+    "useFolioUnfurl (consumes this card's originRect via Flip)",
+    "MotionProvider useMotion() (reduce + fine flags, shared 'breath'/'sediment' eases, single Lenis+GSAP ticker)",
+    "css util .folio-num (JetBrains Mono, № style, wide tracking, ink-faint)"
+  ],
+  "perfNotes": "Animate ONLY transform (y, scale, translateX), opacity, and filter:blur — never width/height/top/box-model. The existing .poem-card box-shadow transition stays as-is (cheap, hover-only, not per-frame). will-change:transform set just-in-time by GSAP on the plate while breathing and on the root during entrance, cleared onComplete and when the card scrolls off-screen; will-change:filter only during the brief blur(6px→0) surfacing, auto-cleared. Off-screen cards pause their breath tween (ScrollTrigger onToggle) so unseen folios cost zero RAF. The Devanagari blur is confined to small text runs and always resolves to 0 — no live-blur on a large node, no perpetual feTurbulence. GSAP and framer own DISTINCT elements: GSAP = plate breath + entrance surfacing; framer = root whileHover lift + whileTap press; CSS = box-shadow + arrow. They never animate the same property on the same node. Mandatory useGSAP/gsap.context scoped cleanup (scope: cardRef) so the entrance ScrollTrigger and breath tween are reverted on unmount and Next fast-refresh; SplitText.revert() if useDevanagariReveal is used on the cardTitle. No second RAF — all GSAP runs on the shared MotionProvider Lenis+gsap.ticker. Three cards share one 8s breath period so phases align (one rhythm, not three).",
+  "reducedMotion": "Under prefers-reduced-motion (via gsap.matchMedia in every hook): the entrance surfacing collapses to a single 0.4s opacity fade — no y, no blur, no stagger, content pre-revealed and fully legible. useBreath is entirely disabled (plate static, will-change removed) so the grid is three calm, still folios. useDevanagariReveal on the cardTitle becomes a plain 0.4s opacity fade with no split (DOM untouched). The hover lift y:-10 is dropped (or reduced to a non-motion box-shadow deepen only) and the arrow translateX is removed — true parity, not merely slowed. The InkCursor is fully disabled (native cursor only) on reduced-motion AND on touch / non-pointer:fine. The click press-settle scale is removed; onOpen still fires and useFolioUnfurl falls back to a plain opacity fade so opening still works without the Flip/scaleY ritual. The focus-visible ring is always retained regardless of motion preference for accessibility."
+}
