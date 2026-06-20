@@ -1,8 +1,14 @@
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // hide the dev build-activity indicator (the floating Next badge)
-  devIndicators: {
-    buildActivity: false,
+  // Pin the workspace root to this project so Next does not pick up an
+  // unrelated lockfile found higher up the filesystem.
+  turbopack: {
+    root: __dirname,
   },
 };
 
