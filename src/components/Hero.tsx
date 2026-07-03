@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/motion/gsap";
 import { useMotion } from "@/lib/motion/context";
-import { useDevanagariReveal } from "@/lib/motion/useDevanagariReveal";
 import { useBreath } from "@/lib/motion/useBreath";
 import { useScrubParallax } from "@/lib/motion/useScrubParallax";
 import { waterline } from "@/components/motion/Waterline";
@@ -23,12 +22,8 @@ export default function Hero() {
 
   const { reduce, ready } = useMotion();
 
-  // The signature surfacing headline — words condense out of wet paper, gold word (सैलाब) last.
-  useDevanagariReveal(headlineRef, {
-    split: "words",
-    goldLast: true,
-    trigger: "load",
-  });
+  // The headline renders sharp and visible on first paint (it is the LCP element),
+  // so no JS-gated entrance animation is applied to it. Motion lives everywhere else.
 
   // bua figure breathes on the shared 8s house rhythm (inner wrapper, transform/opacity only).
   useBreath(breathRef, { period: 8 });

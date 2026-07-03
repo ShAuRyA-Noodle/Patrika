@@ -40,12 +40,14 @@ export function useDevanagariReveal(ref: RefObject<HTMLElement | null>, opts: Re
     () => {
       const el = ref.current;
       if (!el) return;
-      // load reveals wait for the font-ready gate — but pre-hide the target now so the
-      // finished headline never paints in its final state before surfacing (no flash-replay)
-      if (trigger === "load" && !ready) {
-        if (!reduce) gsap.set(el, { autoAlpha: 0 });
-        return;
-      }
+      // load reveals wait for the font-ready gate. We NEVER hide the element while
+      // waiting: the hero headline is the LCP element, so it must paint on first frame.
+      if (trigger === "load" && !ready) return;
+
+      // For the load headline we animate transform + blur ONLY, keeping opacity at 1,
+      // so the text is contentful immediately (fast LCP). Scroll reveals below the fold
+      // may fade in normally.
+      const hideOpacity = trigger !== "load";
 
       const scrollOpts =
         trigger === "scroll"
@@ -54,13 +56,10 @@ export function useDevanagariReveal(ref: RefObject<HTMLElement | null>, opts: Re
 
       if (reduce) {
         gsap.set(el, { autoAlpha: 1 });
-        gsap.from(el, { autoAlpha: 0, duration: 0.4, ...scrollOpts });
+        if (hideOpacity) gsap.from(el, { autoAlpha: 0, duration: 0.4, ...scrollOpts });
         return;
       }
 
-      // the load gate may have pre-hidden the PARENT element; restore it now (the
-      // split word units below carry the actual reveal). Without this the headline
-      // stays invisible because its parent opacity is still 0.
       gsap.set(el, { autoAlpha: 1 });
 
       // Devanagari guard: force word-level when the node holds Devanagari
@@ -84,7 +83,7 @@ export function useDevanagariReveal(ref: RefObject<HTMLElement | null>, opts: Re
 
       const t1 = gsap.from(mainUnits, {
         y,
-        autoAlpha: 0,
+        ...(hideOpacity ? { autoAlpha: 0 } : {}),
         filter: `blur(${blur}px)`,
         ease: "breath",
         duration: 1.0,
@@ -97,7 +96,7 @@ export function useDevanagariReveal(ref: RefObject<HTMLElement | null>, opts: Re
       if (goldUnit) {
         t2 = gsap.from(goldUnit, {
           y,
-          autoAlpha: 0,
+          ...(hideOpacity ? { autoAlpha: 0 } : {}),
           filter: `blur(${blur}px)`,
           scale: 1.015,
           transformOrigin: "50% 100%",

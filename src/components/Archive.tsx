@@ -127,13 +127,10 @@ export default function Archive() {
                 </p>
               </div>
 
-              {/* typographic apparatus: the faces this folio is set in, and its folio year */}
-              <div data-reveal className="flex flex-col items-center gap-3">
-                <p className="eyebrow-quiet max-w-[46ch] text-[color:var(--c-ink-faint-text)]">
-                  Set in Fraunces, Cormorant Garamond, Tiro Devanagari Hindi and JetBrains Mono.
-                </p>
-                <span className="folio-num">№ 2026</span>
-              </div>
+              {/* copyright */}
+              <p data-reveal className="eyebrow-quiet text-[color:var(--c-ink-faint-text)]">
+                © 2026 Neelu Shori. All rights reserved.
+              </p>
 
               {/* quiet return-to-top affordance */}
               <button
