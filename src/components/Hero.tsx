@@ -96,27 +96,31 @@ export default function Hero() {
   return (
     <section ref={ref} className="relative min-h-[86dvh] flex flex-col">
       {/* masthead */}
-      <header className="relative grid grid-cols-3 items-center pt-8 pb-6">
-        <span data-ink className="label-deva text-[color:var(--c-ink-soft)]">
-          नीलू शोरी
-        </span>
+      <header className="relative pt-8 pb-6">
+        {/* wordmark, always centred */}
         <div className="text-center" data-ink>
           <div
-            className="text-4xl md:text-5xl leading-none"
+            className="text-4xl leading-none md:text-5xl"
             style={{ fontFamily: "var(--font-deva)" }}
           >
             पत्रिका
           </div>
           <div
-            className="mt-2.5 italic text-base md:text-lg tracking-[0.16em] uppercase text-[color:var(--c-ink-soft)]"
+            className="mt-2 text-[11px] uppercase italic tracking-[0.16em] text-[color:var(--c-ink-soft)] md:mt-2.5 md:text-lg"
             style={{ fontFamily: "var(--font-display)" }}
           >
             a bilingual journal of poems
           </div>
         </div>
-        <span data-ink className="text-right label-deva text-[color:var(--c-ink-faint)]">
-          हिंदी / English
-        </span>
+        {/* side labels: a row beneath on mobile, flanking the wordmark on desktop */}
+        <div className="mt-5 flex items-center justify-between md:absolute md:inset-x-0 md:top-8 md:mt-0">
+          <span data-ink className="label-deva text-[color:var(--c-ink-soft)]">
+            नीलू शोरी
+          </span>
+          <span data-ink className="label-deva text-right text-[color:var(--c-ink-faint)]">
+            हिंदी / English
+          </span>
+        </div>
         {/* the top rule scores itself in on the loader handoff (scaleX, transformOrigin left) */}
         <span
           ref={ruleRef}
@@ -131,7 +135,7 @@ export default function Hero() {
         <div className="lg:col-span-8">
           <h1
             ref={headlineRef}
-            className="display-tight text-[58px] md:text-[100px] lg:text-[132px] leading-[0.96] text-[color:var(--c-ink)]"
+            className="display-tight text-[58px] md:text-[100px] lg:text-[104px] xl:text-[132px] leading-[0.96] text-[color:var(--c-ink)]"
             style={{ fontFamily: "var(--font-deva)" }}
           >
             जहाँ शब्द थम जाते हैं,
@@ -164,12 +168,12 @@ export default function Hero() {
             {/* slow breathing drift on the shared 8s house rhythm (GSAP, transform/opacity only) */}
             <div ref={breathRef} className="relative aspect-[5/6] w-full overflow-hidden">
               <Image
-                src="/bua.png"
+                src="/art/hero-figure.jpg"
                 alt="An ink-wash figure sitting alone, head bowed, dissolving into the paper."
                 fill
                 priority
-                sizes="(max-width: 1024px) 100vw, 33vw"
-                className="object-cover object-[78%_center] grayscale contrast-[1.08] mix-blend-multiply"
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-cover object-[72%_center] grayscale contrast-[1.06] mix-blend-multiply"
               />
               {/* ink wash dissolving the lower edge into the page — opacity tracks the rising waterline */}
               <div

@@ -78,8 +78,12 @@ const PoemScroll = forwardRef<PoemScrollHandle, { poem: Poem; onClose?: () => vo
             >
               {poem.author}
             </span>
-            <span className="h-3.5 w-px bg-[color:var(--c-rule)]" />
-            <span className="eyebrow text-[color:var(--c-ink-soft)]">{poem.date}</span>
+            {/* divider + date grouped so a narrow-screen wrap never strands the
+                divider alone at the end of the previous line */}
+            <span className="flex items-center gap-x-6">
+              <span aria-hidden="true" className="h-3.5 w-px bg-[color:var(--c-rule)]" />
+              <span className="eyebrow text-[color:var(--c-ink-soft)]">{poem.date}</span>
+            </span>
           </div>
         </header>
 
@@ -220,12 +224,12 @@ const PoemScroll = forwardRef<PoemScrollHandle, { poem: Poem; onClose?: () => vo
         </div>
 
         {onClose && (
-          <div className="mt-14 text-center">
+          <div className="mt-16 text-center">
             <button
               onClick={onClose}
               data-ink
-              aria-label="सभी कविताएँ — back to all poems"
-              className="label-deva text-[color:var(--c-accent)] hover:text-[color:var(--c-ink)] transition-colors"
+              aria-label="सभी कविताएँ : back to all poems"
+              className="label-deva text-[color:var(--c-accent)] transition-colors hover:text-[color:var(--c-ink)] inline-block px-4 py-3 -mx-4 -my-3"
             >
               <span aria-hidden="true">←</span> सभी कविताएँ
             </button>

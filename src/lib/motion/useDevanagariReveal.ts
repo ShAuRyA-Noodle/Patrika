@@ -53,9 +53,15 @@ export function useDevanagariReveal(ref: RefObject<HTMLElement | null>, opts: Re
           : {};
 
       if (reduce) {
+        gsap.set(el, { autoAlpha: 1 });
         gsap.from(el, { autoAlpha: 0, duration: 0.4, ...scrollOpts });
         return;
       }
+
+      // the load gate may have pre-hidden the PARENT element; restore it now (the
+      // split word units below carry the actual reveal). Without this the headline
+      // stays invisible because its parent opacity is still 0.
+      gsap.set(el, { autoAlpha: 1 });
 
       // Devanagari guard: force word-level when the node holds Devanagari
       const type: "words" | "lines" =

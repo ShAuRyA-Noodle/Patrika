@@ -10,6 +10,12 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
+  images: {
+    // serve modern formats for the manuscript scans + ink art
+    formats: ["image/avif", "image/webp"],
+    // Next 16 requires an explicit qualities allowlist to serve any quality other than 75
+    qualities: [50, 62, 75, 82],
+  },
 };
 
 export default nextConfig;

@@ -13,6 +13,8 @@ export default function AuroraBackground() {
       <span className="blob blob-1" />
       <span className="blob blob-2" />
       <span className="blob blob-3" />
+      {/* faint drifting ink current (generated sumi-e texture) */}
+      <div className="ink-current-layer" />
     </div>
   );
 }

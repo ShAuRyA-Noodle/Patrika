@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import Hero from "@/components/Hero";
 import PullQuote from "@/components/PullQuote";
 import PoemCard from "@/components/PoemCard";
+import VerseGallery from "@/components/VerseGallery";
 import PoemScroll, { type PoemScrollHandle } from "@/components/PoemScroll";
 import { POEMS } from "@/lib/poems";
 import { useMotion } from "@/lib/motion/context";
@@ -98,28 +99,53 @@ export default function Archive() {
               संग्रह
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
               {POEMS.map((poem, i) => (
                 <PoemCard key={poem.id} poem={poem} index={i} onOpen={() => openPoem(poem.id)} />
               ))}
             </div>
           </section>
 
-          <footer className="pt-10 pb-16">
+          <VerseGallery />
+
+          <footer className="pt-10 pb-16 md:pt-14 md:pb-20">
             {/* footer top rule draws in before the colophon surfaces */}
-            <div data-reveal aria-hidden className="surface-hairline mb-10" />
-            <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <span data-reveal className="text-3xl" style={{ fontFamily: "var(--font-deva)" }}>
-                पत्रिका
-              </span>
-              <span
+            <div data-reveal aria-hidden className="surface-hairline mb-12 md:mb-16" />
+
+            <div className="flex flex-col items-center gap-10 text-center md:gap-12">
+              {/* wordmark + the one true standfirst, closing the folio */}
+              <div data-reveal className="flex flex-col items-center gap-4">
+                <span className="text-4xl md:text-5xl" style={{ fontFamily: "var(--font-deva)" }}>
+                  पत्रिका
+                </span>
+                <p
+                  className="italic text-lg text-[color:var(--c-ink-soft)] md:text-xl"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  a bilingual journal of poems by{" "}
+                  <span className="gold-pool text-[color:var(--c-gold)]">नीलू शोरी</span>
+                </p>
+              </div>
+
+              {/* typographic apparatus: the faces this folio is set in, and its folio year */}
+              <div data-reveal className="flex flex-col items-center gap-3">
+                <p className="eyebrow-quiet max-w-[46ch] text-[color:var(--c-ink-faint-text)]">
+                  Set in Fraunces, Cormorant Garamond, Tiro Devanagari Hindi and JetBrains Mono.
+                </p>
+                <span className="folio-num">№ 2026</span>
+              </div>
+
+              {/* quiet return-to-top affordance */}
+              <button
                 data-reveal
-                className="italic text-xl text-[color:var(--c-ink-soft)]"
-                style={{ fontFamily: "var(--font-display)" }}
+                data-ink
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                aria-label="ऊपर लौटें, return to top"
+                className="eyebrow-quiet -m-3 p-3 text-[color:var(--c-ink-faint-text)] transition-colors hover:text-[color:var(--c-ink)]"
               >
-                कविताएँ{" "}
-                <span className="gold-pool text-[color:var(--c-gold)]">नीलू शोरी</span>, 2026
-              </span>
+                return to top <span aria-hidden="true">↑</span>
+              </button>
             </div>
           </footer>
         </div>
@@ -133,14 +159,14 @@ export default function Archive() {
             ref={overlayRef}
             role="dialog"
             aria-modal="true"
-            aria-label={`${active.titleDeva} — ${active.titleRoman}`}
+            aria-label={`${active.titleDeva}, ${active.titleRoman}`}
             tabIndex={-1}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35 }}
             data-lenis-prevent
-            className="fixed inset-0 z-50 overflow-y-auto outline-none surface theme-forest"
+            className="fixed inset-0 z-50 overflow-y-auto outline-none bg-[color:var(--c-paper)]"
           >
             {/* cathartic flood-up: a dark wash within palette rising from the bottom on open.
                 DISTINCT element from the GSAP-driven manuscript sheet — framer owns it. */}
@@ -165,8 +191,8 @@ export default function Archive() {
                 <button
                   onClick={handleClose}
                   data-ink
-                  aria-label="कविता बंद करें — close poem"
-                  className="label-deva text-[color:var(--c-accent)] hover:text-[color:var(--c-ink)] transition-colors"
+                  aria-label="कविता बंद करें, close poem"
+                  className="-m-3 p-3 label-deva text-[color:var(--c-accent)] hover:text-[color:var(--c-ink)] transition-colors"
                 >
                   बंद करें <span aria-hidden="true">✕</span>
                 </button>

@@ -18,93 +18,80 @@ export default function PoemCard({
   onOpen: () => void;
 }) {
   const cardRef = useRef<HTMLButtonElement>(null);
-  // breath lives on an inner wrapper INSIDE the plate so it never shares a
-  // transform/opacity target with the GSAP surfacing reveal (which animates the
-  // [data-reveal] plate container) or with the framer hover/tap on the root.
+  // breath lives on an inner wrapper so it never shares a transform target with the
+  // GSAP surfacing reveal (the [data-reveal] children) or the framer hover on the root.
   const breathRef = useRef<HTMLDivElement>(null);
-  // one reduced-motion source shared with the GSAP hooks (no framer/GSAP desync)
   const { reduce } = useMotion();
 
-  // GSAP ScrollTrigger.batch surfaces the inner folio lines (folio-num, plate,
-  // subtitle, blurb, link) on scroll — scope cleanup via the hook's useGSAP.
-  // GSAP owns these children's transform/opacity/blur; framer never touches them.
   useStaggerReveal(cardRef, { each: 0.11, y: 22, blur: 6, start: "top 85%" });
+  useBreath(breathRef, { period: 8, y: -6, scale: 1.012, opacity: 0.04, mode: "breath" });
 
-  // Perpetual sub-pixel breath on the inner plate wrapper — one shared 8s rhythm
-  // across all three folios. Disabled under reduced-motion by the hook itself.
-  useBreath(breathRef, { period: 8, y: -6, scale: 1.015, opacity: 0.04, mode: "breath" });
+  const romanDetail = poem.titleRoman.split(",").slice(1).join(",").trim() || poem.titleRoman;
 
   return (
     <motion.button
       ref={cardRef}
       onClick={onOpen}
       data-ink
-      aria-label={`${poem.titleRoman.split(",")[0].trim()} — पढ़िए / read poem`}
-      // Entrance is owned by GSAP (inner [data-reveal] surfacing). Framer keeps
-      // only the root's distinct interaction transforms so the two libraries
-      // never animate the same property on the same node.
+      aria-label={`${poem.titleRoman.split(",")[0].trim()} : पढ़िए / read poem`}
       whileHover={reduce ? undefined : { y: -10 }}
       whileTap={reduce ? undefined : { scale: 0.99 }}
       transition={{ type: "spring", stiffness: 220, damping: 26 }}
       className="poem-card group text-left paper-sheet p-0 overflow-hidden flex flex-col cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--c-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--c-paper)]"
     >
-      {/* thumbnail (square). Drop an image path into poem.thumb to replace the typographic plate. */}
+      {/* ink-wash cover plate; the Devanagari title debosses over the empty upper paper */}
       <div
         data-reveal
-        className="relative aspect-square w-full overflow-hidden border-b border-[color:var(--c-rule)]"
-        style={{ transitionDelay: `${index * 0.1}s` }}
+        className="relative aspect-[4/5] w-full overflow-hidden border-b border-[color:var(--c-rule)]"
       >
-        {/* breathing inner wrapper — GSAP useBreath owns this node's transform/opacity */}
         <div ref={breathRef} className="absolute inset-0">
-          {poem.thumb ? (
-            <Image
-              src={poem.thumb}
-              alt={poem.cardTitle}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-[color:var(--c-paper-2)] px-6">
-              {/* Devanagari cardTitle — kept as ONE static text node, never char-split */}
-              <span
-                className="text-[60px] md:text-[76px] leading-[1.04] text-center text-[color:var(--c-ink)]"
-                style={{ fontFamily: "var(--font-deva)" }}
-              >
-                {poem.cardTitle}
-              </span>
-            </div>
-          )}
+          <Image
+            src={poem.plate}
+            alt={`Ink-wash artwork for ${poem.titleRoman}`}
+            fill
+            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw"
+            className="object-cover"
+          />
+        </div>
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-4 p-6 md:p-7">
+          <h3
+            className="deboss text-[32px] leading-[1.04] text-[color:var(--c-ink)] md:text-[38px]"
+            style={{ fontFamily: "var(--font-deva)" }}
+          >
+            {poem.cardTitle}
+          </h3>
+          <span className="folio-num mt-2 shrink-0">{poem.number}</span>
         </div>
       </div>
 
-      {/* body */}
-      <div className="p-8 lg:p-9 flex flex-col flex-1">
-        {/* manuscript apparatus — folio number (mono, NEVER on Devanagari) */}
-        <div data-reveal className="folio-num">
-          {poem.number}
-        </div>
-        <div
-          data-reveal
-          className="mt-3 italic text-2xl text-[color:var(--c-ink-faint)]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          {poem.titleRoman.split(",")[0].trim()}
-        </div>
+      {/* body: her real opening line, the English descriptor, and the read cue */}
+      <div className="flex flex-1 flex-col gap-5 p-7 lg:p-8">
         <p
           data-reveal
-          className="mt-5 text-[23px] leading-[1.52] text-[color:var(--c-ink-soft)] flex-1"
-          style={{ fontFamily: "var(--font-body)" }}
+          className="text-[19px] leading-[1.55] text-[color:var(--c-ink-soft)] md:text-[21px]"
+          style={{ fontFamily: "var(--font-deva)" }}
         >
-          {poem.blurb}
+          {poem.teaser}
         </p>
+        <div
+          data-reveal
+          className="text-lg italic text-[color:var(--c-ink-faint-text)]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {romanDetail}
+        </div>
         <span
           data-reveal
-          className="mt-8 inline-flex items-center gap-2.5 text-xl text-[color:var(--c-accent)]"
+          className="mt-auto inline-flex items-center gap-2.5 text-lg text-[color:var(--c-accent)]"
           style={{ fontFamily: "var(--font-deva)" }}
         >
           पढ़िए
-          <span aria-hidden="true" className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1.5"
+          >
+            →
+          </span>
         </span>
       </div>
     </motion.button>

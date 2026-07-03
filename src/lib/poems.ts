@@ -7,8 +7,10 @@ export type Poem = {
   titleRoman: string;      // romanization / English subtitle
   author: string;          // signature
   date: string;
-  images: string[];        // all page scans (empty = no manuscript)
-  thumb?: string;          // optional card thumbnail (drop an image in /public, set its path)
+  images: string[];        // real handwritten manuscript scans (facing artifact in the reading room)
+  plate: string;           // the ink-wash cover artwork for this poem
+  teaser: string;          // her real opening line, verbatim, shown on the folio index
+  thumb?: string;          // optional card thumbnail override
   cardTitle: string;       // short label shown on the grid card
   blurb: string;           // brief Hindi/English description for the card
   stanzas: Stanza[];       // primary content, typeset
@@ -28,6 +30,8 @@ export const POEMS: Poem[] = [
     author: "नीलू शोरी",
     date: "Spring · MMXXVI",
     images: [],
+    plate: "/art/plate-maun.jpg",
+    teaser: "सृष्टि को जन्म देने वाली स्त्री की अनकही पीड़ा की कथा।",
     cardTitle: "मौन वेदना",
     blurb: "इतिहास के पन्नों में दबी नारी की मौन पीड़ा। On the silent suffering women have carried across the ages.",
     stanzas: [
@@ -70,6 +74,8 @@ export const POEMS: Poem[] = [
     author: "नीलू शोरी",
     date: "Spring · MMXXVI",
     images: [],
+    plate: "/art/plate-sailab.jpg",
+    teaser: "जहाँ शब्द थम जाते हैं, वहाँ सैलाब दफ़्न हो जाते हैं।",
     cardTitle: "दफ़्न सैलाब",
     blurb: "प्रकृति और पुरुष, और वह सैलाब जो भीतर ही भीतर घुटता रहा। A flood that drowns within, never allowed to spill.",
     stanzas: [
@@ -161,6 +167,8 @@ export const POEMS: Poem[] = [
     author: "नीलू शोरी",
     date: "Spring · MMXXVI",
     images: [],
+    plate: "/art/plate-ankaha.jpg",
+    teaser: "हर बूढ़ी आँखों में सिर्फ़ और सिर्फ़ वही तैरता पानी,",
     cardTitle: "अनकहा दर्द",
     blurb: "बूढ़ी आँखों में ठहरा वह पानी, जो छलकना चाहकर भी नहीं छलकता। The unshed water that waits in ageing eyes.",
     stanzas: [

@@ -68,5 +68,5 @@ export default function InkCursor() {
     { dependencies: [reduce, fine] }
   );
 
-  return <div ref={dotRef} aria-hidden className="ink-cursor" />;
+  return <div ref={dotRef} aria-hidden className="ink-cursor keep-fixed" />;
 }

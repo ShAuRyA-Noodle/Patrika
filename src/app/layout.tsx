@@ -31,8 +31,17 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"
+  ),
   title: "पत्रिका · Patrika, poems by Neelu Shori",
-  description: "A bilingual journal of poems by Neelu Shori. Three poems on silence, suffering, and the floods a woman is never allowed to spill.",
+  description:
+    "A bilingual journal of poems by Neelu Shori. Three poems on silence, suffering, and the floods a woman is never allowed to spill.",
+  openGraph: {
+    title: "पत्रिका · Patrika",
+    description: "A bilingual journal of poems by Neelu Shori.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
