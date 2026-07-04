@@ -127,6 +127,19 @@ export default function Archive() {
                 </p>
               </div>
 
+              {/* contact the poet */}
+              <div data-reveal className="flex flex-col items-center gap-2.5">
+                <span className="eyebrow-quiet text-[color:var(--c-ink-faint-text)]">contact</span>
+                <a
+                  data-ink
+                  href="mailto:bhartishori24@gmail.com"
+                  className="text-lg text-[color:var(--c-ink-soft)] transition-colors hover:text-[color:var(--c-ink)]"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  bhartishori24@gmail.com
+                </a>
+              </div>
+
               {/* copyright */}
               <p data-reveal className="eyebrow-quiet text-[color:var(--c-ink-faint-text)]">
                 © 2026 Neelu Shori. All rights reserved.
