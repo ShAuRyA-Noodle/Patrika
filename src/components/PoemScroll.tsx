@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import type { Poem } from "@/lib/poems";
 import { useMotion } from "@/lib/motion/context";
+import Comments from "@/components/Comments";
 import { useFolioUnfurl } from "@/lib/motion/useFolioUnfurl";
 import { useDevanagariReveal } from "@/lib/motion/useDevanagariReveal";
 import { staggerVariants, houseEase } from "@/lib/motion/useStaggerReveal";
@@ -222,6 +223,9 @@ const PoemScroll = forwardRef<PoemScrollHandle, { poem: Poem; onClose?: () => vo
             </div>
           </div>
         </div>
+
+        {/* reader responses (nested, stored in Supabase) */}
+        <Comments poemId={poem.id} />
 
         {onClose && (
           <div className="mt-16 text-center">
