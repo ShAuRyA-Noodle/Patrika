@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import type { Poem } from "@/lib/poems";
+import { TRANSLATIONS } from "@/lib/translations";
 import { useMotion } from "@/lib/motion/context";
 import Comments from "@/components/Comments";
 import { useFolioUnfurl } from "@/lib/motion/useFolioUnfurl";
@@ -20,6 +21,12 @@ const PoemScroll = forwardRef<PoemScrollHandle, { poem: Poem; onClose?: () => vo
   function PoemScroll({ poem, onClose }, ref) {
     // one reduced-motion source shared with the GSAP hooks (folio/title) — no desync
     const { reduce } = useMotion();
+
+    // language toggle for the poem body (title + signature stay as-is). English is
+    // the faithful translation from src/lib/translations.ts, structure-parallel.
+    const en = TRANSLATIONS[poem.id];
+    const [lang, setLang] = useState<"hi" | "en">("hi");
+    const stanzas = lang === "en" && en ? en.stanzasEn : poem.stanzas;
 
     // GSAP-owned manuscript chrome
     const articleRef = useRef<HTMLElement>(null);
@@ -86,6 +93,43 @@ const PoemScroll = forwardRef<PoemScrollHandle, { poem: Poem; onClose?: () => vo
               <span className="eyebrow text-[color:var(--c-ink-soft)]">{poem.date}</span>
             </span>
           </div>
+
+          {/* read in Hindi or English */}
+          {en && (
+            <div className="mt-7 inline-flex items-center gap-4 text-[15px]">
+              <button
+                type="button"
+                data-ink
+                aria-pressed={lang === "hi"}
+                onClick={() => setLang("hi")}
+                className={
+                  "transition-colors " +
+                  (lang === "hi"
+                    ? "text-[color:var(--c-ink)]"
+                    : "text-[color:var(--c-ink-faint-text)] hover:text-[color:var(--c-ink)]")
+                }
+                style={{ fontFamily: "var(--font-deva)" }}
+              >
+                हिंदी
+              </button>
+              <span aria-hidden="true" className="h-3.5 w-px bg-[color:var(--c-rule)]" />
+              <button
+                type="button"
+                data-ink
+                aria-pressed={lang === "en"}
+                onClick={() => setLang("en")}
+                className={
+                  "italic transition-colors " +
+                  (lang === "en"
+                    ? "text-[color:var(--c-ink)]"
+                    : "text-[color:var(--c-ink-faint-text)] hover:text-[color:var(--c-ink)]")
+                }
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                English
+              </button>
+            </div>
+          )}
         </header>
 
         {/* the scroll */}
@@ -126,7 +170,7 @@ const PoemScroll = forwardRef<PoemScrollHandle, { poem: Poem; onClose?: () => vo
 
               {/* stanzas — framer whileInView (overlay is its own scroll container) */}
               <div className="relative space-y-12 md:space-y-16">
-                {poem.stanzas.map((stanza, si) => {
+                {stanzas.map((stanza, si) => {
                   // illuminate the first stanza's first Devanagari line with the drop-cap
                   let dropMarked = false;
                   return (
@@ -139,6 +183,18 @@ const PoemScroll = forwardRef<PoemScrollHandle, { poem: Poem; onClose?: () => vo
                       className="space-y-3"
                     >
                       {stanza.map((line, li) => {
+                        if (lang === "en") {
+                          return (
+                            <motion.p
+                              key={li}
+                              variants={variants.item}
+                              className="text-[20px] md:text-[23px] leading-[1.8] text-[color:var(--c-ink)]"
+                              style={{ fontFamily: "var(--font-body)" }}
+                            >
+                              {line}
+                            </motion.p>
+                          );
+                        }
                         const deva = isDeva(line);
                         const isDropCap = si === 0 && deva && !dropMarked;
                         if (isDropCap) dropMarked = true;
