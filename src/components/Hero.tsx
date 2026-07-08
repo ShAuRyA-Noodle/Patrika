@@ -110,7 +110,7 @@ export default function Hero() {
         {/* side labels: a row beneath on mobile, flanking the wordmark on desktop */}
         <div className="mt-5 flex items-center justify-between md:absolute md:inset-x-0 md:top-8 md:mt-0">
           <span data-ink className="label-deva text-[color:var(--c-ink-soft)]">
-            नीलू शोरी
+            भारती शोरी
           </span>
           <span data-ink className="label-deva text-right text-[color:var(--c-ink-faint)]">
             हिंदी / English

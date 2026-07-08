@@ -38,22 +38,22 @@ const mono = JetBrains_Mono({
 const SITE_URL = "https://sparshita.com";
 const SITE_NAME = "पत्रिका · Patrika";
 const DESCRIPTION =
-  "A bilingual journal of poems by Neelu Shori. Three poems on silence, suffering, and the floods a woman is never allowed to spill.";
+  "A bilingual journal of poems by Bharti Shori. Three poems on silence, suffering, and the floods a woman is never allowed to spill.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "पत्रिका · Patrika, poems by Neelu Shori",
+    default: "पत्रिका · Patrika, poems by Bharti Shori",
     template: "%s · पत्रिका",
   },
   description: DESCRIPTION,
   applicationName: "Patrika",
-  authors: [{ name: "Neelu Shori" }],
-  creator: "Neelu Shori",
-  publisher: "Neelu Shori",
+  authors: [{ name: "Bharti Shori" }],
+  creator: "Bharti Shori",
+  publisher: "Bharti Shori",
   keywords: [
-    "Neelu Shori",
-    "नीलू शोरी",
+    "Bharti Shori",
+    "भारती शोरी",
     "पत्रिका",
     "Patrika",
     "Hindi poetry",
@@ -80,14 +80,14 @@ export const metadata: Metadata = {
     type: "website",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "पत्रिका · Patrika, poems by Neelu Shori",
-    description: "A bilingual journal of poems by Neelu Shori.",
+    title: "पत्रिका · Patrika, poems by Bharti Shori",
+    description: "A bilingual journal of poems by Bharti Shori.",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "पत्रिका · Patrika",
-    description: "A bilingual journal of poems by Neelu Shori.",
+    description: "A bilingual journal of poems by Bharti Shori.",
   },
 };
 
@@ -106,7 +106,7 @@ const jsonLd = {
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
       name: SITE_NAME,
-      alternateName: "Patrika, poems by Neelu Shori",
+      alternateName: "Patrika, poems by Bharti Shori",
       description: DESCRIPTION,
       inLanguage: ["hi", "en"],
       author: { "@id": `${SITE_URL}/#poet` },
@@ -114,8 +114,8 @@ const jsonLd = {
     {
       "@type": "Person",
       "@id": `${SITE_URL}/#poet`,
-      name: "Neelu Shori",
-      alternateName: "नीलू शोरी",
+      name: "Bharti Shori",
+      alternateName: "भारती शोरी",
       jobTitle: "Poet",
       url: SITE_URL,
     },

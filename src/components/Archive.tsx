@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import Hero from "@/components/Hero";
 import PullQuote from "@/components/PullQuote";
+import About from "@/components/About";
 import PoemCard from "@/components/PoemCard";
 import VerseGallery from "@/components/VerseGallery";
 import PoemScroll, { type PoemScrollHandle } from "@/components/PoemScroll";
@@ -87,6 +88,10 @@ export default function Archive() {
 
         <PullQuote />
 
+        <div className="mx-auto w-full max-w-[1280px] px-6 md:px-12 lg:px-16">
+          <About />
+        </div>
+
         <div ref={sectionRef} className="mx-auto w-full max-w-[1280px] px-6 md:px-12 lg:px-16">
           <section id="archive" className="relative pt-24 pb-28">
             {/* surface-level horizon rule — scores the margin before the word surfaces */}
@@ -123,7 +128,7 @@ export default function Archive() {
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   a bilingual journal of poems by{" "}
-                  <span className="gold-pool text-[color:var(--c-gold)]">नीलू शोरी</span>
+                  <span className="gold-pool text-[color:var(--c-gold)]">भारती शोरी</span>
                 </p>
               </div>
 
@@ -142,7 +147,7 @@ export default function Archive() {
 
               {/* copyright */}
               <p data-reveal className="eyebrow-quiet text-[color:var(--c-ink-faint-text)]">
-                © 2026 Neelu Shori. All rights reserved.
+                © 2026 Bharti Shori. All rights reserved.
               </p>
 
               {/* quiet return-to-top affordance */}

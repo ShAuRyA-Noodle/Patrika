@@ -1,4 +1,4 @@
-// The most devastating lines, drawn VERBATIM from Neelu Shori's three poems in
+// The most devastating lines, drawn VERBATIM from Bharti Shori's three poems in
 // poems.ts. Nothing here is invented: `deva` is her exact text; `gloss` is a
 // faithful English translation of her meaning (the journal is bilingual by design).
 // Line breaks are typographic only and never alter her words or punctuation.
