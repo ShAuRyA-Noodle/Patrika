@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
+import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import PullQuote from "@/components/PullQuote";
 import About from "@/components/About";
@@ -82,6 +83,7 @@ export default function Archive() {
 
       {/* everything behind the reading overlay — made inert while a poem is open */}
       <div ref={backgroundRef}>
+        <Nav />
         <div className="mx-auto w-full max-w-[1280px] px-6 md:px-12 lg:px-16">
           <Hero />
         </div>
@@ -113,7 +115,7 @@ export default function Archive() {
 
           <VerseGallery />
 
-          <footer className="pt-10 pb-16 md:pt-14 md:pb-20">
+          <footer id="contact" className="scroll-mt-24 pt-10 pb-16 md:pt-14 md:pb-20">
             {/* footer top rule draws in before the colophon surfaces */}
             <div data-reveal aria-hidden className="surface-hairline mb-12 md:mb-16" />
 
