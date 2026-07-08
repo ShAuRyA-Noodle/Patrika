@@ -15,9 +15,18 @@ export default function PoemCard({
 }: {
   poem: Poem;
   index: number;
-  onOpen: () => void;
+  onOpen: (origin: string) => void;
 }) {
   const cardRef = useRef<HTMLButtonElement>(null);
+
+  // hand the reading overlay the clicked card's centre, so it can bloom from here
+  const handleOpen = () => {
+    const r = cardRef.current?.getBoundingClientRect();
+    const origin = r
+      ? `${(((r.left + r.width / 2) / window.innerWidth) * 100).toFixed(1)}% ${(((r.top + r.height / 2) / window.innerHeight) * 100).toFixed(1)}%`
+      : "50% 45%";
+    onOpen(origin);
+  };
   // breath lives on an inner wrapper so it never shares a transform target with the
   // GSAP surfacing reveal (the [data-reveal] children) or the framer hover on the root.
   const breathRef = useRef<HTMLDivElement>(null);
@@ -31,7 +40,7 @@ export default function PoemCard({
   return (
     <motion.button
       ref={cardRef}
-      onClick={onOpen}
+      onClick={handleOpen}
       data-ink
       aria-label={`${poem.titleRoman.split(",")[0].trim()} : पढ़िए / read poem`}
       whileHover={reduce ? undefined : { y: -10 }}

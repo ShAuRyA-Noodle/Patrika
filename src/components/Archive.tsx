@@ -15,6 +15,7 @@ import { useStaggerReveal } from "@/lib/motion/useStaggerReveal";
 
 export default function Archive() {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [origin, setOrigin] = useState("50% 45%");
   const active = POEMS.find((p) => p.id === openId) ?? null;
   // one reduced-motion source, shared with the GSAP hooks
   const { reduce } = useMotion();
@@ -34,8 +35,9 @@ export default function Archive() {
   const lastTriggerRef = useRef<HTMLElement | null>(null);
   const closingRef = useRef(false);
 
-  const openPoem = useCallback((id: string) => {
+  const openPoem = useCallback((id: string, o: string) => {
     lastTriggerRef.current = (document.activeElement as HTMLElement) ?? null;
+    setOrigin(o);
     setOpenId(id);
   }, []);
 
@@ -108,7 +110,7 @@ export default function Archive() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
               {POEMS.map((poem, i) => (
-                <PoemCard key={poem.id} poem={poem} index={i} onOpen={() => openPoem(poem.id)} />
+                <PoemCard key={poem.id} poem={poem} index={i} onOpen={(o) => openPoem(poem.id, o)} />
               ))}
             </div>
           </section>
@@ -178,10 +180,11 @@ export default function Archive() {
             aria-modal="true"
             aria-label={`${active.titleDeva}, ${active.titleRoman}`}
             tabIndex={-1}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.94 }}
+            animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
+            transition={{ duration: reduce ? 0.35 : 0.72, ease: [0.16, 1, 0.3, 1] }}
+            style={{ transformOrigin: origin }}
             data-lenis-prevent
             className="fixed inset-0 z-50 overflow-y-auto outline-none bg-[color:var(--c-paper)]"
           >

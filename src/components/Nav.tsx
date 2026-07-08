@@ -40,7 +40,12 @@ export default function Nav() {
     setOpen(false);
     const el = target ? (document.querySelector(target) as HTMLElement | null) : null;
     if (target && !el) return;
-    if (lenis) lenis.scrollTo(el ?? 0, { offset: el ? -72 : 0, duration: reduce ? 0 : 1.2 });
+    if (lenis)
+      lenis.scrollTo(el ?? 0, {
+        offset: el ? -72 : 0,
+        duration: reduce ? 0 : 1.9,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
     else if (el) el.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
     else window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
   };
