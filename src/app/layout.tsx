@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Cormorant_Garamond, Tiro_Devanagari_Hindi, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import MotionProvider from "@/components/motion/MotionProvider";
 import { POEMS } from "@/lib/poems";
 
@@ -150,9 +149,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <MotionProvider>{children}</MotionProvider>
-        {/* privacy-friendly, cookieless visitor analytics + real-world Core Web Vitals */}
+        {/* privacy-friendly, cookieless visitor analytics */}
         <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
