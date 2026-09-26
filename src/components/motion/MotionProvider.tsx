@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Lenis from "lenis";
 import { registerGsap, gsap, ScrollTrigger } from "@/lib/motion/gsap";
 import { MotionContext } from "@/lib/motion/context";
@@ -18,7 +18,6 @@ import InkCursor from "./InkCursor";
  */
 export default function MotionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState({ reduce: false, fine: false, ready: false });
-  const lenisRef = useRef<Lenis | null>(null);
   const [lenis, setLenis] = useState<Lenis | null>(null);
 
   useEffect(() => {
@@ -37,8 +36,10 @@ export default function MotionProvider({ children }: { children: React.ReactNode
       wheelMultiplier: 0.95,
       touchMultiplier: 1.4,
     });
-    lenisRef.current = instance;
-    setLenis(instance);
+    let active = true;
+    queueMicrotask(() => {
+      if (active) setLenis(instance);
+    });
 
     const onScroll = () => ScrollTrigger.update();
     instance.on("scroll", onScroll);
@@ -52,7 +53,9 @@ export default function MotionProvider({ children }: { children: React.ReactNode
     // reduced-motion / pointer state, kept live
     const syncMedia = () =>
       setState((s) => ({ ...s, reduce: mqReduce.matches, fine: mqFine.matches }));
-    syncMedia();
+    queueMicrotask(() => {
+      if (active) syncMedia();
+    });
     mqReduce.addEventListener("change", syncMedia);
     mqFine.addEventListener("change", syncMedia);
 
@@ -67,15 +70,14 @@ export default function MotionProvider({ children }: { children: React.ReactNode
     const maxWait = window.setTimeout(finish, 600);
     const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
     if (fonts?.ready) fonts.ready.then(finish).catch(finish);
-    else finish();
+    else queueMicrotask(finish);
 
     return () => {
+      active = false;
       window.clearTimeout(maxWait);
       gsap.ticker.remove(tick);
       instance.off("scroll", onScroll);
       instance.destroy();
-      lenisRef.current = null;
-      setLenis(null);
       mqReduce.removeEventListener("change", syncMedia);
       mqFine.removeEventListener("change", syncMedia);
     };

@@ -10,11 +10,9 @@ import { useBreath } from "@/lib/motion/useBreath";
 
 export default function PoemCard({
   poem,
-  index,
   onOpen,
 }: {
   poem: Poem;
-  index: number;
   onOpen: (origin: string) => void;
 }) {
   const cardRef = useRef<HTMLButtonElement>(null);
