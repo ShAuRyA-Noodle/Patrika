@@ -109,8 +109,8 @@ export default function Archive() {
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
-              {POEMS.map((poem, i) => (
-                <PoemCard key={poem.id} poem={poem} index={i} onOpen={(o) => openPoem(poem.id, o)} />
+              {POEMS.map((poem) => (
+                <PoemCard key={poem.id} poem={poem} onOpen={(o) => openPoem(poem.id, o)} />
               ))}
             </div>
           </section>

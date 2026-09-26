@@ -209,10 +209,7 @@ export default function Comments({ poemId }: { poemId: string }) {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+    if (!supabase) return;
     const { data } = await supabase
       .from("comments")
       .select("*")
@@ -223,8 +220,22 @@ export default function Comments({ poemId }: { poemId: string }) {
   }, [poemId]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (!supabase) return;
+    let active = true;
+    supabase
+      .from("comments")
+      .select("*")
+      .eq("poem_id", poemId)
+      .order("created_at", { ascending: true })
+      .then(({ data }) => {
+        if (!active) return;
+        setRows(data ?? []);
+        setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [poemId]);
 
   const post = useCallback(
     async (parentId: string | null, name: string, body: string): Promise<string | null> => {
